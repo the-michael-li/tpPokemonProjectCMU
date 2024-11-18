@@ -2,7 +2,7 @@ from cmu_graphics import *
 import requests
 
 def onAppStart(app): 
-    app.unparsed = requests.get('https://pokeapi.co/api/v2/pokemon/barboach/')
+    app.unparsed = requests.get('https://pokeapi.co/api/v2/pokemon/charizard/')
     if app.unparsed.status_code != 200:
         print("Error: ", app.unparsed.status_code)
     
