@@ -9,10 +9,11 @@ class Pokemon:
     @param name - name of the pokemon (str)
     @param species - species name of pokemon (str)
     @param team - battle side of the pokemon ('me' for my side, 'opp' for enemy)
-    @param hiddenAbility - whether instance has hidden/regular ability (True hidden, False reg)
     battleURL is image of pokemon in battle, iconURL is icon of pokemon in menus
+    stats are calculated based on IVs and EVs: IVs will always be perfect (31 in each stat)
+
     '''
-    def __init__(self, name, species, team, hiddenAbility): 
+    def __init__(self, name, species, team): 
         self.name = name
         
         self.species = species.lower()
@@ -34,14 +35,14 @@ class Pokemon:
             self.battleURL = self.iconURL
         
         self.ability = None
-        # Get ability based on if it is hidden or not and if there is one available
+        # Fix this (three abilities sometimes)
         if len(self.infoDictionary['abilities']) > 1: 
             self.ability = ability
         
 
         self.statList = statList # List of stats used for calculations in battle
         # [hp, attack, defense, special-attack, special-defense, speed]
-        self.effortValues = [0, 0, 0, 0, 0, 0] # Boosts to each stat (maxes: 510 total, 255 per stat)
+        self.effortValues = [0, 0, 0, 0, 0, 0] # Boosts to each stat (maxes: 510 total, 252 per stat)
         # effortValue // 4 is the number of stat points added to each base stat
 
         self.movesList = movesList # List of possible moves for this pokemon
