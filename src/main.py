@@ -10,7 +10,9 @@ class Pokemon:
     @param species - species name of pokemon (str)
     @param team - battle side of the pokemon ('me' for my side, 'opp' for enemy)
     battleURL is image of pokemon in battle, iconURL is icon of pokemon in menus
-    stats are calculated based on IVs and EVs: IVs will always be perfect (31 in each stat)
+    stats are calculated based on IVs and EVs and Nature (1.1 and 0.9) and Lvls are 50: 
+        HP = ((2*Base + IV + EV/4 + 100) * Level) / 100 + 10
+        Stat = (((2*Base + IV + EV/4) * Level) / 100 + 5) * Nature
 
     '''
     def __init__(self, name, species, team): 
@@ -38,11 +40,15 @@ class Pokemon:
         # Fix this (three abilities sometimes)
         if len(self.infoDictionary['abilities']) > 1: 
             self.ability = ability
-        
 
-        self.statList = statList # List of stats used for calculations in battle
+        self.baseStatList = [stat['base_stat'] for stat in self.infoDictionary['stats']] 
+        # List of base stats of Pokemon species
         # [hp, attack, defense, special-attack, special-defense, speed]
-        self.effortValues = [0, 0, 0, 0, 0, 0] # Boosts to each stat (maxes: 510 total, 252 per stat)
+
+        # Boosts to each stat (max: 31 per stat)
+        self.individualValues = [31, 31, 31, 31, 31, 31] 
+        # Boosts to each stat (maxes: 510 total, 252 per stat)
+        self.effortValues = [0, 0, 0, 0, 0, 0] 
         # effortValue // 4 is the number of stat points added to each base stat
 
         self.movesList = movesList # List of possible moves for this pokemon
