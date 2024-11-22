@@ -21,6 +21,8 @@ class Pokemon:
         HP = ((2*Base + IV + EV/4 + 100) * Level) / 100 + 10
         Stat = (((2*Base + IV + EV/4) * Level) / 100 + 5) * Nature
 
+    ToDo: add get battle stats and natures, start working on UI, 
+        and start figuring out how to access moves/abilities
     '''
     def __init__(self, name, species, team): 
         self.name = name
@@ -91,6 +93,10 @@ class Pokemon:
     def __eq__(self, other): 
         return isinstance(other, Pokemon) and self.species == other.species
     
+    def getBattleStats(self): 
+        battleStats = []
+        pass
+
     '''
     Find and return list of names of abilities available to Pokemon instance
     @return - list of ability names available to Pokemon to choose from
