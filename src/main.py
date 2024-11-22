@@ -1,9 +1,16 @@
 from cmu_graphics import *
 import requests
 import random
+import pickle
 # Gen 1 is all pokemon with id <= 151
 
 class Pokemon: 
+
+    # Imports a set of all gen one pokemon names as a class variable
+    genOnePokemon = None
+    with open('genOnePokemonNameList', 'rb') as file:
+        genOnePokemon = pickle.load(file)
+    
     ''' 
     Creates a basic instance of Pokemon Class
     @param name - name of the pokemon (str)
@@ -71,7 +78,7 @@ class Pokemon:
         for moveIndex in self.infoDictionary['moves']: 
             firstMoveGen = moveIndex['version_group_details'][0]['version_group']['name']
             if firstMoveGen == 'red-blue' or firstMoveGen == 'yellow': 
-                self.movesList.append(moveIndex['moves']['name'])
+                self.movesList.append(moveIndex['move']['name'])
         
         # List of useable moves for this pokemon (max of 4)
         self.movesToUse = [None, None, None, None]
