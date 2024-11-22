@@ -6,10 +6,15 @@ import pickle
 
 class Pokemon: 
 
-    # Imports a set of all gen one pokemon names as a class variable
+    # Imports a file of a set of all gen one pokemon names
     genOnePokemon = None
     with open('genOnePokemonNameList', 'rb') as file:
         genOnePokemon = pickle.load(file)
+
+    # Imports a file of a dictionary of natures and their stat effects (increase index, decrease index)
+    natureEffectsDictionary = None
+    with open('natureEffectList', 'rb') as file:
+        natureEffectsDictionary = pickle.load(file)
     
     ''' 
     Creates a basic instance of Pokemon Class
@@ -17,24 +22,22 @@ class Pokemon:
     @param species - species name of pokemon (str)
     @param team - battle side of the pokemon ('me' for my side, 'opp' for enemy)
     battleURL is image of pokemon in battle, iconURL is icon of pokemon in menus
-    stats are calculated based on IVs and EVs and Nature (1.1 and 0.9) and Lvls are 50: 
-        HP = ((2*Base + IV + EV/4 + 100) * Level) / 100 + 10
-        Stat = (((2*Base + IV + EV/4) * Level) / 100 + 5) * Nature
+    
 
-    ToDo: add get battle stats and natures, start working on UI, 
-        and start figuring out how to access moves/abilities
+    ToDo: add get/set battle stats, health, and status conditions, start working on UI, get Types 
+        and start figuring out how to access moves/ability effects
     '''
     def __init__(self, name, species, team): 
         self.name = name
         
         self.statusCondition = None
-        # Stat changes that affect the Pokemon instance in battle
+        # Stat change stages that affect the Pokemon instance in battle
         # max is +6, min is -6
         self.statChanges = [0, 0, 0, 0, 0, 0]
 
         # Stats that all pokemon start the battle with (accuracy, evasion)
         # only affected by move accuracy and stat changes
-        self.battleStartStats = [0, 0]
+        self.battleAccuracyStats = [0, 0]
         
         self.species = species.lower()
         # Get the dictionary for the pokemon from the API
@@ -71,9 +74,16 @@ class Pokemon:
         self.individualValues = [31, 31, 31, 31, 31, 31] 
         # Boosts to each stat (maxes: 510 total, 252 per stat)
         self.effortValues = [0, 0, 0, 0, 0, 0]
+        
+        # Set the default nature
+        self.nature = None
+        self.natureBattleEffects = None
+        self.setNature('serious')
 
-        # Get in-battle stats based on equation from __init__ description
-        self.battleStats = self.getBattleStats()
+        # Get in-battle stats based on equation
+        self.battleStats = None
+        self.calculateInitialBattleStats()
+        self.currHealth = self.battleStats[0]
 
         self.movesList = []
         # List of possible moves for this pokemon (gen 1 only)
@@ -92,10 +102,6 @@ class Pokemon:
     
     def __eq__(self, other): 
         return isinstance(other, Pokemon) and self.species == other.species
-    
-    def getBattleStats(self): 
-        battleStats = []
-        pass
 
     '''
     Find and return list of names of abilities available to Pokemon instance
@@ -115,7 +121,24 @@ class Pokemon:
             return True
         else: 
             return False
-        
+    
+    '''
+    Return a list of possible Natures for a pokemon to have
+    @return - list of nature names (str)
+    '''
+    def getNatures(self): 
+        return Pokemon.natureEffectsDictionary.keys()
+
+    '''
+    Set the nature of a pokemon and update the effects on battle stats
+    @param nature - Name of the nature to set for the Pokemon instance (str)
+    '''
+    def setNature(self, nature): 
+        self.nature = nature
+        self.natureBattleEffects = [1 for _ in range(6)]
+        self.natureBattleEffects[Pokemon.natureEffectsDictionary[self.nature][0]] += 0.1
+        self.natureBattleEffects[Pokemon.natureEffectsDictionary[self.nature][0]] -= 0.1
+
     '''
     Find and return list of names of moves available to Pokemon instance
     @return - list of move names available to Pokemon to choose from
@@ -136,7 +159,54 @@ class Pokemon:
         else: 
             return False
 
+    '''
+    Find and return list of stats on Pokemon instance currently in battle
+    @return - [hp, attack, defense, special-attack, special-defense, speed, 
+                accuracyChanges, evasionChanges]
+    '''
+    def getBattleStats(self): 
+        return self.battleStats + self.battleAccuracyStats
 
+    '''
+    Initial calculatation and change battle stats based only on EVs, IVs, and Nature (1.1 and 0.9)
+    stats are calculated where Lvls are 50: 
+        HP = ((2*Base + IV + EV//4 + 100) * Level) // 100 + 10 + Level
+        Stat = (((2*Base + IV + EV//4) * Level) // 100 + 5) * Nature
+    '''
+    def calculateInitialBattleStats(self): 
+        # Formula for HP is different from other stats
+        self.battleStats[0] = ((((2*self.baseStatList[0] + self.individualValues[0] 
+                                    + self.effortValues[0]//4 + 100) * 50) // 100) + 10 + 50)
+        for i in range(1, 6):
+            baseStat = self.baseStatList[i]
+            indValue = self.individualValues[i]
+            effValue = self.effortValues[i]
+            natureEffect = self.natureBattleEffects[i]
+            self.battleStats[i] = (((((2*baseStat + indValue + effValue//4) * 50)
+                                        // 100) + 5) * natureEffect)
+
+
+    '''
+    When in battle, calculate any stat drops/raises based on a stat change
+    @param statChange - stage of stat change [6, -6]
+    @param statIndex - location of affected stat (hp cannot be affected)
+                        [hp, attack, defense, special-attack, special-defense, speed, accuracy, evasion]
+    '''
+    def setBattleStats(self, statChange, statIndex): 
+        if 5 < statIndex < 8: 
+            self.battleAccuracyStats[statIndex - 6] += statChange
+        elif 0 < statIndex < 6: 
+            self.battleStats[statIndex] += statChange
+        self.calculateCurrBattleStats()
+
+    '''
+    
+    '''
+    def calculateCurrBattleStats(self): 
+        pass
+
+
+    
 
 def onAppStart(app): 
     pass
