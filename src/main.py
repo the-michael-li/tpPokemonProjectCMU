@@ -24,11 +24,15 @@ class Pokemon:
     battleURL is image of pokemon in battle, iconURL is icon of pokemon in menus
     
 
-    ToDo: add get/set battle stats, health, and status conditions, start working on UI, get Types 
+    ToDo: add get/set battle stats and status conditions, start working on UI, get Types 
         and start figuring out how to access moves/ability effects
     '''
     def __init__(self, name, species, team): 
         self.name = name
+
+        # Pokemon health status (options are 'green', 'yellow', and 'red')
+        self.healthStatus = 'green'
+        self.pokemonFainted = False
         
         self.statusCondition = None
         # Stat change stages that affect the Pokemon instance in battle
@@ -102,6 +106,32 @@ class Pokemon:
     
     def __eq__(self, other): 
         return isinstance(other, Pokemon) and self.species == other.species
+
+    '''
+    Find and return current hp value
+    @return - hp value (int)
+    '''
+    def getAbilites(self): 
+        return self.currHealth
+    
+    '''
+    Set currHealth based on the change in health, if fainted, sets health to 0 and pokemonFainted to True
+    If needed, change the healthbar color based on % of health left
+    @param healthChange - Name change in health (-ve if damage, +ve if healing)
+    '''
+    def setAbility(self, healthChange): 
+        self.currHealth += healthChange
+        if(self.currHealth <= 0): 
+            self.pokemonFainted = True
+            self.currHealth = 0
+
+        currHealthPercentage = self.currHealth / self.battleStats[0]
+        if currHealthPercentage > 0.5: 
+            self.healthStatus = 'green'
+        elif currHealthPercentage > 0.2: 
+            self.healthStatus = 'yellow'
+        else: 
+            self.healthStatus = 'red'
 
     '''
     Find and return list of names of abilities available to Pokemon instance
