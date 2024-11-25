@@ -1,21 +1,26 @@
-from cmu_graphics import *
-import requests
-import random
-import pickle
-import copy
-# Gen 1 is all pokemon with id <= 151
+# Pokemon data from Pokeapi.co
+# Battle background image from https://www.pinterest.com/ideas/pokemon-battle-background/934038905355/
 
+from cmu_graphics import *
+import requests, pickle, os, pathlib
+import random, copy
+from PIL import Image
+
+
+############################################################
+# Pokemon Class
+############################################################
 class Pokemon: 
 
     # Imports a file of a set of all gen one pokemon names
     genOnePokemon = None
-    with open('genOnePokemonNameList', 'rb') as file:
-        genOnePokemon = pickle.load(file)
+    # with open('genOnePokemonNameList', 'rb') as file:
+    #     genOnePokemon = pickle.load(file)
 
     # Imports a file of a dictionary of natures and their stat effects (increase index, decrease index)
     natureEffectsDictionary = None
-    with open('natureEffectList', 'rb') as file:
-        natureEffectsDictionary = pickle.load(file)
+    # with open('natureEffectList', 'rb') as file:
+    #     natureEffectsDictionary = pickle.load(file)
     
     ''' 
     Creates a basic instance of Pokemon Class
@@ -288,14 +293,44 @@ class Pokemon:
         if self.statusCondition != None: 
             pass
     
+def loadSound(relativePath):
+    # Convert to absolute path (because pathlib.Path only takes absolute paths)
+    absolutePath = os.path.abspath(relativePath)
+    # Get local file URL
+    url = pathlib.Path(absolutePath).as_uri()
+    # Load Sound file from local URL
+    return Sound(url)
 
 def onAppStart(app): 
-    pass
+    app.img = Image.open(os.path.join('images', 'pokemonBattleGround.png'))
+    app.img = CMUImage(app.img)
 
-def redrawAll(app):
-    pass
+############################################################
+# Start Screen
+############################################################
+def start_redrawAll(app):
+    drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
+              height=app.height, align='center')
 
+
+############################################################
+# Team Build Screen
+############################################################
+def start_redrawAll(app):
+    drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
+              height=app.height, align='center')
+    
+############################################################
+# Battle Screen
+############################################################
+def start_redrawAll(app):
+    drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
+              height=app.height, align='center')
+
+############################################################
+# Main
+############################################################
 def main():
-    runApp(width=2560, height=1600)
+    runApp(width=2560, height=1600, initialScreen='start')
 
 main()
