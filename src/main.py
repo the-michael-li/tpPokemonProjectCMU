@@ -11,7 +11,6 @@ from PIL import Image
 # Pokemon Class
 ############################################################
 class Pokemon: 
-
     # Imports a file of a set of all gen one pokemon names
     genOnePokemon = None
     # with open('genOnePokemonNameList', 'rb') as file:
@@ -51,7 +50,7 @@ class Pokemon:
     movesToUse: list of four moves that a pokemon can use in battle
 
 
-    ToDo: start working on UI, get Types, add pp
+    ToDo: start working on UI, get Types, add pp, fix file find, 
         and start figuring out how to access moves effects
     '''
     def __init__(self, name, species, team): 
@@ -331,6 +330,7 @@ def start_redrawAll(app):
 # Main
 ############################################################
 def main():
-    runApp(width=2560, height=1600, initialScreen='start')
+    print(os.getcwd())
+    runAppWithScreens(width=2560, height=1600, initialScreen='start')
 
 main()
