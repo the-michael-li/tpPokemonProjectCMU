@@ -300,7 +300,7 @@ def loadSound(relativePath):
     # Load Sound file from local URL
     return Sound(url)
 
-def onAppStart(app): 
+def onAppStart(app):
     app.img = Image.open(os.path.join('images', 'pokemonBattleGround.png'))
     app.img = CMUImage(app.img)
 
@@ -308,13 +308,22 @@ def onAppStart(app):
 # Start Screen
 ############################################################
 def start_redrawAll(app):
-    pass
+    drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
+    pokemonList = ['P', 'o', 'K', 'é', 'B', 'o', 'u', 't', 's', 'V', 'G', 'C', '!']
+    for characterIndex in range(len(pokemonList)): 
+        drawLabel(pokemonList[characterIndex], app.width // 2 - (300-50 * characterIndex), 
+                  app.height // 2 - 300 + abs(42-7 * characterIndex), fill=rgb(255, 203, 5),
+                   border=rgb(60, 90, 166), borderWidth=5, size=90, bold=True, 
+                   rotateAngle=-16 + (characterIndex) ** 1.4, align='bottom')
+    drawLabel('Tap anywhere to start', app.width // 2, app.height - 300, size=20, bold=True)
 
+def start_onMousePress(app, mouseX, mouseY): 
+    setActiveScreen('build')
 
 ############################################################
 # Team Build Screen
 ############################################################
-def start_redrawAll(app):
+def build_redrawAll(app):
     # drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
     #           height=app.height, align='center')
     pass
@@ -322,7 +331,7 @@ def start_redrawAll(app):
 ############################################################
 # Battle Screen
 ############################################################
-def start_redrawAll(app):
+def battle_redrawAll(app):
     drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
               height=app.height, align='center')
 
