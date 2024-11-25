@@ -2,6 +2,7 @@ from cmu_graphics import *
 import requests
 import random
 import pickle
+import copy
 # Gen 1 is all pokemon with id <= 151
 
 class Pokemon: 
@@ -23,9 +24,30 @@ class Pokemon:
     @param team - battle side of the pokemon ('me' for my side, 'opp' for enemy)
     battleURL is image of pokemon in battle, iconURL is icon of pokemon in menus
     
+    Important instance variables: 
+    name: name of the pokemon
+    species: name of species of the pokemon
+    statusCondition: name of the status condition
+    statChanges and battleAccuracyStats:    changes in stats that 
+                                            affect battleStats in battle
+    infoDictionary: dictionary for the pokemon species
+    iconURL: image link for menu icon of pokemon
+    battleURL: image link for battle image of pokemon
+    baseStatList: list of base stats
+    individualValues: list of IVs for the pokemon
+    effortValues: list of the EVs for the pokemon
+    nature: name of the nature for the pokemon
+    natureBattleEffects: list of stat multipliers based on the nature
+    healthStatus: name of color of health bar based on percentage of health left
+    pokemonFainted: boolean of whether the pokemon is fainted or not
+    battleStats: list of the fluctuating stats in battle
+    startingStats: a list of starting battleStats for reference
+    movesList: list of possible move names for the pokemon
+    movesToUse: list of four moves that a pokemon can use in battle
 
-    ToDo: add get/set battle stats and status conditions, start working on UI, get Types 
-        and start figuring out how to access moves/ability effects
+
+    ToDo: start working on UI, get Types, add pp
+        and start figuring out how to access moves effects
     '''
     def __init__(self, name, species, team): 
         self.name = name
@@ -34,6 +56,7 @@ class Pokemon:
         self.healthStatus = 'green'
         self.pokemonFainted = False
         
+        # Can be sleep, burn, paralysis, freeze, poison, etc.
         self.statusCondition = None
         # Stat change stages that affect the Pokemon instance in battle
         # max is +6, min is -6
@@ -61,14 +84,6 @@ class Pokemon:
             self.battleURL = self.infoDictionary['sprites'][spriteKey]
         else: 
             self.battleURL = self.iconURL
-        
-        # Get the current ability name for Pokemon instance
-        self.ability = self.infoDictionary['abilities'][0]['ability']['name']
-
-        # Get a list of possible abilities for Pokemon instance
-        self.abilityList = []
-        for abilityDict in self.infoDictionary['abilities']: 
-            self.abilityList.append(abilityDict['ability']['name'])
 
         # List of base stats of Pokemon species
         # [hp, attack, defense, special-attack, special-defense, speed]
@@ -86,8 +101,9 @@ class Pokemon:
 
         # Get in-battle stats based on equation
         self.battleStats = None
+        self.startingStats = None
         self.calculateInitialBattleStats()
-        self.currHealth = self.battleStats[0]
+        self.currHealth = self.startingStats[0]
 
         self.movesList = []
         # List of possible moves for this pokemon (gen 1 only)
@@ -98,8 +114,6 @@ class Pokemon:
         
         # List of useable moves for this pokemon (max of 4)
         self.movesToUse = [None, None, None, None]
-        
-        self.heldItem = ''
 
     def __repr__(self): 
         return self.name
@@ -111,7 +125,7 @@ class Pokemon:
     Find and return current hp value
     @return - hp value (int)
     '''
-    def getAbilites(self): 
+    def getHealth(self): 
         return self.currHealth
     
     '''
@@ -119,38 +133,19 @@ class Pokemon:
     If needed, change the healthbar color based on % of health left
     @param healthChange - Name change in health (-ve if damage, +ve if healing)
     '''
-    def setAbility(self, healthChange): 
+    def setHealth(self, healthChange): 
         self.currHealth += healthChange
         if(self.currHealth <= 0): 
             self.pokemonFainted = True
             self.currHealth = 0
 
-        currHealthPercentage = self.currHealth / self.battleStats[0]
+        currHealthPercentage = self.currHealth / self.startingStats[0]
         if currHealthPercentage > 0.5: 
             self.healthStatus = 'green'
         elif currHealthPercentage > 0.2: 
             self.healthStatus = 'yellow'
         else: 
             self.healthStatus = 'red'
-
-    '''
-    Find and return list of names of abilities available to Pokemon instance
-    @return - list of ability names available to Pokemon to choose from
-    '''
-    def getAbilites(self): 
-        return self.abilityList
-    
-    '''
-    Set self.ability for the Pokemon instance if it is allowable
-    @param abilityName - Name of ability to set self.ability to
-    @return - True if set properly, False if ability is not allowed on Pokemon
-    '''
-    def setAbility(self, abilityName): 
-        if abilityName in self.abilityList: 
-            self.ability = abilityName
-            return True
-        else: 
-            return False
     
     '''
     Return a list of possible Natures for a pokemon to have
@@ -190,6 +185,48 @@ class Pokemon:
             return False
 
     '''
+    Find and return list of ivs set for pokemon instance
+    @return - list of ivs on pokemon instance
+    '''
+    def getIvs(self): 
+        return self.individualValues
+    
+    '''
+    Set an iv value for the pokemon instance and if over max values, set to max
+    @param ivIndex - index of iv stat to change (ie. 0 = health, 1 = attack, etc.)
+    @param ivValue - value of iv to set iv to
+    '''
+    def setIvs(self, ivIndex, ivValue): 
+        if ivValue > 31: 
+            ivValue = 31
+        elif ivValue < 0: 
+            ivValue = 0
+        self.individualValues[ivIndex] = ivValue
+
+    '''
+    Find and return list of evs set for pokemon instance
+    @return - list of evs on pokemon instance
+    '''
+    def getEvs(self): 
+        return self.effortValues
+    
+    '''
+    Set an ev value for the pokemon instance and if over max values, set to max
+    @param evIndex - index of ev stat to change (ie. 0 = health, 1 = attack, etc.)
+    @param evValue - value of ev to set ev to
+    '''
+    def setEvs(self, evIndex, evValue): 
+        if evValue > 252: 
+            evValue = 252
+        elif evValue < 0: 
+            evValue = 0
+        self.effortValues[evIndex] = evValue
+        overflow = 0
+        if sum(self.effortValues) > 510: 
+            overflow = sum(self.effortValues) - 510
+            self.effortValues[evIndex] -= overflow
+
+    '''
     Find and return list of stats on Pokemon instance currently in battle
     @return - [hp, attack, defense, special-attack, special-defense, speed, 
                 accuracyChanges, evasionChanges]
@@ -214,7 +251,7 @@ class Pokemon:
             natureEffect = self.natureBattleEffects[i]
             self.battleStats[i] = (((((2*baseStat + indValue + effValue//4) * 50)
                                         // 100) + 5) * natureEffect)
-
+        self.startingStats = copy.copy(self.battleStats)
 
     '''
     When in battle, calculate any stat drops/raises based on a stat change
@@ -226,16 +263,30 @@ class Pokemon:
         if 5 < statIndex < 8: 
             self.battleAccuracyStats[statIndex - 6] += statChange
         elif 0 < statIndex < 6: 
-            self.battleStats[statIndex] += statChange
+            self.statChanges[statIndex] += statChange
+        
+        # Make sure stat changes are limited to the 6th stage
+        self.statChanges[statIndex] = min(6, self.statChanges[statIndex])
+        self.battleAccuracyStats[statIndex - 6] = min(6, self.battleAccuracyStats[statIndex - 6])
+        self.statChanges[statIndex] = max(-6, self.statChanges[statIndex])
+        self.battleAccuracyStats[statIndex - 6] = max(-6, self.battleAccuracyStats[statIndex - 6])
+
         self.calculateCurrBattleStats()
 
     '''
-    
+    Calculate current battleStats based on stat changes and statusCondition
     '''
     def calculateCurrBattleStats(self): 
-        pass
-
-
+        for statIndex in range(1, len(self.battleStats)): 
+            if self.statChanges[statIndex] > 0: 
+                self.battleStats[statIndex] = (self.startingStats[statIndex] 
+                                               * (1 + 0.5(self.statChanges[statIndex])))
+            else: 
+                self.battleStats[statIndex] = (self.startingStats[statIndex] 
+                                               // (1 + abs(0.5(self.statChanges[statIndex]))))
+        # Template for if I want to implement status conditions
+        if self.statusCondition != None: 
+            pass
     
 
 def onAppStart(app): 
