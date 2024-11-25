@@ -13,13 +13,13 @@ from PIL import Image
 class Pokemon: 
     # Imports a file of a set of all gen one pokemon names
     genOnePokemon = None
-    # with open('genOnePokemonNameList', 'rb') as file:
-    #     genOnePokemon = pickle.load(file)
+    with open('genOneNames', 'rb') as file:
+        genOnePokemon = pickle.load(file)
 
     # Imports a file of a dictionary of natures and their stat effects (increase index, decrease index)
     natureEffectsDictionary = None
-    # with open('natureEffectList', 'rb') as file:
-    #     natureEffectsDictionary = pickle.load(file)
+    with open('natureEffects', 'rb') as file:
+        natureEffectsDictionary = pickle.load(file)
     
     ''' 
     Creates a basic instance of Pokemon Class
@@ -308,16 +308,16 @@ def onAppStart(app):
 # Start Screen
 ############################################################
 def start_redrawAll(app):
-    drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
-              height=app.height, align='center')
+    pass
 
 
 ############################################################
 # Team Build Screen
 ############################################################
 def start_redrawAll(app):
-    drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
-              height=app.height, align='center')
+    # drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
+    #           height=app.height, align='center')
+    pass
     
 ############################################################
 # Battle Screen
