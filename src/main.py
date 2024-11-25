@@ -330,7 +330,6 @@ def start_redrawAll(app):
 # Main
 ############################################################
 def main():
-    print(os.getcwd())
     runAppWithScreens(width=2560, height=1600, initialScreen='start')
 
 main()
