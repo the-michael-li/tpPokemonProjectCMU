@@ -6,6 +6,7 @@ import requests, pickle, os, pathlib
 import random, copy
 from PIL import Image
 from pokemon import Pokemon
+from uiElements import Button
 '''
 Make generic moves
 '''
@@ -25,7 +26,7 @@ def onAppStart(app):
 
 def restart(app): 
     setActiveScreen('start')
-    app.pokemonTeam = [None, None, None, None, None, None]
+    app.teamBuildButtons = []
 
 ############################################################
 # Start Screen
@@ -46,18 +47,35 @@ def start_onMousePress(app, mouseX, mouseY):
 ############################################################
 # Team Build Screen
 ############################################################
-def teamBuild_redrawAll(app):
-    drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
-    pokemonRectWidth = app.width // 3
+def teamBuild_onScreenActivate(app): 
+    app.selectedIndex = None
+    app.teamBuildButtons = []
+    pokemonRectWidth = 5 * app.width // 16
     pokemonRectHeight = app.height // 8
     for pokemonSlot in range(len(app.pokemonTeam)): 
-        drawRect(app.width // 8 + (pokemonSlot % 2) * (pokemonRectWidth + app.width // 8),
-                 app.height // 8 + (pokemonSlot) * pokemonRectHeight,
-                 pokemonRectWidth, pokemonRectHeight, fill=rgb(250, 51, 51))
+        rectLeft = app.width // 8 + (pokemonSlot % 2) * (pokemonRectWidth + app.width // 8)
+        rectTop = app.height // 4 + (pokemonSlot // 2) * (pokemonRectHeight + app.height // 8)
+        newButton = Button(rectLeft, rectTop, pokemonRectWidth, pokemonRectHeight, 'teamAdd')
+        app.teamBuildButtons.append(newButton)
+
+def teamBuild_redrawAll(app):
+    drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
+    for button in app.teamBuildButtons:
+        button.drawButton()
+
+def teamBuild_onMousePress(app, mouseX, mouseY): 
+    for buttonIndex in range(len(app.teamBuildButtons)): 
+        if app.teamBuildButtons[buttonIndex].clickIn(mouseX, mouseY): 
+            app.selectedIndex = buttonIndex
+            setActiveScreen('pokeBuild')
+
     
 ############################################################
 # Pokemon Build Screen
 ############################################################
+def pokeBuild_onScreenActivate(app): 
+    app.teamBuildButtons[app.selectedIndex] = Pokemon(None, 'ditto', 'me')
+
 def pokeBuild_redrawAll(app):
     drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
     
