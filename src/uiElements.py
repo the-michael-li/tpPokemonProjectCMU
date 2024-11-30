@@ -1,6 +1,7 @@
 from cmu_graphics import *
-import requests, os
+import requests, os, random
 from PIL import Image
+from pokemon import Pokemon
 
 class Button: 
     def __init__(self, rectLeft, rectTop, rectWidth, rectHeight, theme='teamAdd'): 
@@ -41,3 +42,27 @@ class Button:
     @staticmethod
     def distance(x1, y1, x2, y2): 
         return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+    
+class textInput: 
+    def __init__(self, rectLeft, rectTop, rectWidth, rectHeight): 
+        self.rectLeft = rectLeft
+        self.rectTop = rectTop
+        self.rectWidth = rectWidth
+        self.rectHeight = rectHeight
+        self.active = False
+        self.text = ''
+
+    def drawBar(self): 
+        if not self.active: 
+            border='black'
+            color='white'
+        else: 
+            border=rgb(60, 90, 166)
+            color=rgb(255, 203, 5)
+        drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
+                fill=color, border=border, borderWidth=3)
+    
+    def typeChar(self, key): 
+        pass
+        
+        

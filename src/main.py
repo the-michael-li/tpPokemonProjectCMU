@@ -26,6 +26,7 @@ def onAppStart(app):
 
 def restart(app): 
     setActiveScreen('start')
+    app.pokemonTeam = [None, None, None, None, None, None]
     app.teamBuildButtons = []
 
 ############################################################
@@ -60,6 +61,8 @@ def teamBuild_onScreenActivate(app):
 
 def teamBuild_redrawAll(app):
     drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
+    drawLabel('Make a team!',app.width//4,app.height//8, bold=True,
+              size=85, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
     for button in app.teamBuildButtons:
         button.drawButton()
 
@@ -73,11 +76,16 @@ def teamBuild_onMousePress(app, mouseX, mouseY):
 ############################################################
 # Pokemon Build Screen
 ############################################################
-def pokeBuild_onScreenActivate(app): 
-    app.teamBuildButtons[app.selectedIndex] = Pokemon(None, 'ditto', 'me')
+def pokeBuild_onScreenActivate(app):
+    newPokemon = Pokemon(None, 'ditto', 'me')
+    app.pokemonTeam[app.selectedIndex] = newPokemon
+    app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
 
 def pokeBuild_redrawAll(app):
     drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
+    drawLabel(f'Pokémon No. {app.selectedIndex + 1}',app.width//6,app.height//16, bold=True,
+              size=70, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
+    
     
     
 ############################################################

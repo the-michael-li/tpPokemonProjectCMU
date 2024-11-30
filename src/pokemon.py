@@ -159,7 +159,7 @@ class Pokemon:
     @param nature - Name of the nature to set for the Pokemon instance (str)
     '''
     def setNature(self, nature): 
-        self.nature = nature
+        self.nature = nature.lower()
         self.natureBattleEffects = [1 for _ in range(6)]
         self.natureBattleEffects[Pokemon.natureEffectsDictionary[self.nature][0]] += 0.1
         self.natureBattleEffects[Pokemon.natureEffectsDictionary[self.nature][0]] -= 0.1
@@ -179,7 +179,7 @@ class Pokemon:
     '''
     def addMove(self, moveName, index): 
         if index < 4 and moveName in self.movesList: 
-            self.movesToUse[index] = moveName
+            self.movesToUse[index] = moveName.lower()
             return True
         else: 
             return False
