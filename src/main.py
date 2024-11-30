@@ -5,7 +5,7 @@ from cmu_graphics import *
 import requests, pickle, os, pathlib
 import random, copy
 from PIL import Image
-from pokemon import Pokemon
+# from pokemon import Pokemon
 from uiElements import Button, TextInput
 '''
 Make generic moves
@@ -77,12 +77,12 @@ def teamBuild_onMousePress(app, mouseX, mouseY):
 # Pokemon Build Screen
 ############################################################
 def pokeBuild_onScreenActivate(app):
-    newPokemon = Pokemon(None, 'ditto', 'me')
-    app.pokemonTeam[app.selectedIndex] = newPokemon
-    app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
+    # newPokemon = Pokemon(None, 'ditto', 'me')
+    # app.pokemonTeam[app.selectedIndex] = newPokemon
+    # app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
 
-    uInputWidth = 20
-    uInputHeight = 20
+    uInputWidth = 100
+    uInputHeight = 30
     uInputLeft = app.width // 2 - uInputWidth // 2
     uInputTop = app.height // 2 - uInputHeight // 2
     
@@ -97,6 +97,9 @@ def pokeBuild_redrawAll(app):
     
 def pokeBuild_onMousePress(app, mouseX, mouseY): 
     app.speciesTxtBox.clickIn(mouseX, mouseY)
+
+def pokeBuild_onKeyPress(app, key): 
+    app.speciesTxtBox.typeChar(key)
     
 ############################################################
 # Battle Screen

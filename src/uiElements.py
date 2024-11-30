@@ -61,7 +61,8 @@ class TextInput:
             color=rgb(255, 203, 5)
         drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
                 fill=color, border=border, borderWidth=3)
-        drawLabel(self.text, self.rectLeft, self.rectTop + 5, size=5, fill='black')
+        drawLabel(self.text, self.rectLeft + 5, self.rectTop + self.rectHeight // 2, 
+                  size=self.rectHeight - 10, fill='black', align='left')
     
     def clickIn(self, mouseX, mouseY): 
         # Check if mouse outside X bounds

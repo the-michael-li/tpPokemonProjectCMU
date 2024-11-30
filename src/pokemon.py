@@ -9,13 +9,13 @@ from PIL import Image
 class Pokemon: 
     # Imports a file of a set of all gen one pokemon names
     genOnePokemon = None
-    # with open('genOneNames', 'rb') as file:
-    #     genOnePokemon = pickle.load(file)
+    with open('genOneNames', 'rb') as file:
+        genOnePokemon = pickle.load(file)
 
     # Imports a file of a dictionary of natures and their stat effects (increase index, decrease index)
     natureEffectsDictionary = None
-    # with open('natureEffects', 'rb') as file:
-    #     natureEffectsDictionary = pickle.load(file)
+    with open('natureEffects', 'rb') as file:
+        natureEffectsDictionary = pickle.load(file)
     
     ''' 
     Creates a basic instance of Pokemon Class
@@ -279,11 +279,9 @@ class Pokemon:
     def calculateCurrBattleStats(self): 
         for statIndex in range(1, len(self.battleStats)): 
             if self.statChanges[statIndex] > 0: 
-                self.battleStats[statIndex] = (self.startingStats[statIndex] 
-                                               * (1 + 0.5(self.statChanges[statIndex])))
+                self.battleStats[statIndex] = (self.startingStats[statIndex] * (1 + 0.5 * (self.statChanges[statIndex])))
             else: 
-                self.battleStats[statIndex] = (self.startingStats[statIndex] 
-                                               // (1 + abs(0.5(self.statChanges[statIndex]))))
+                self.battleStats[statIndex] = (self.startingStats[statIndex] // (1 + abs(0.5 * (self.statChanges[statIndex]))))
         # Template for if I want to implement status conditions
         if self.statusCondition != None: 
             pass
