@@ -43,7 +43,7 @@ class Button:
     def distance(x1, y1, x2, y2): 
         return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
     
-class textInput: 
+class TextInput: 
     def __init__(self, rectLeft, rectTop, rectWidth, rectHeight): 
         self.rectLeft = rectLeft
         self.rectTop = rectTop
@@ -61,8 +61,25 @@ class textInput:
             color=rgb(255, 203, 5)
         drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
                 fill=color, border=border, borderWidth=3)
+        drawLabel(self.text, self.rectLeft, self.rectTop + 5, size=5, fill='black')
     
+    def clickIn(self, mouseX, mouseY): 
+        # Check if mouse outside X bounds
+        if (mouseX > self.rectLeft + self.rectWidth or mouseX < self.rectLeft): 
+            self.active = False
+        # Check if mouse outside Y bounds
+        if (mouseY > self.rectTop + self.rectHeight or mouseY < self.rectTop): 
+            self.active = False
+        self.active = True
+
     def typeChar(self, key): 
-        pass
+        if self.active: 
+            if key == 'backspace': 
+                self.text = self.text[:-1]
+            elif key.isalpha(): 
+                self.text += key
+            elif key.iswhitespace(): 
+                self.text += ' '
+        
         
         

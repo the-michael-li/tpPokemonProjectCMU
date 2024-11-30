@@ -6,7 +6,7 @@ import requests, pickle, os, pathlib
 import random, copy
 from PIL import Image
 from pokemon import Pokemon
-from uiElements import Button
+from uiElements import Button, TextInput
 '''
 Make generic moves
 '''
@@ -81,12 +81,22 @@ def pokeBuild_onScreenActivate(app):
     app.pokemonTeam[app.selectedIndex] = newPokemon
     app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
 
+    uInputWidth = 20
+    uInputHeight = 20
+    uInputLeft = app.width // 2 - uInputWidth // 2
+    uInputTop = app.height // 2 - uInputHeight // 2
+    
+    app.speciesTxtBox = TextInput(uInputLeft, uInputTop, uInputWidth, uInputHeight)
+
 def pokeBuild_redrawAll(app):
     drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
     drawLabel(f'Pokémon No. {app.selectedIndex + 1}',app.width//6,app.height//16, bold=True,
               size=70, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
+    app.speciesTxtBox.drawBar()
+
     
-    
+def pokeBuild_onMousePress(app, mouseX, mouseY): 
+    app.speciesTxtBox.clickIn(mouseX, mouseY)
     
 ############################################################
 # Battle Screen
