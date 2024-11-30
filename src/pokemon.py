@@ -46,7 +46,7 @@ class Pokemon:
     movesToUse: list of four moves that a pokemon can use in battle
 
 
-    ToDo: start working on UI, get Types, add pp, fix file find, 
+    ToDo: start working on UI, 
         and start figuring out how to access moves effects
     '''
     def __init__(self, name, species, team): 
