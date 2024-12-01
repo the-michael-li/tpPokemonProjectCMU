@@ -49,6 +49,12 @@ class Button:
         self.pokemon = pokemon
         self.text = self.pokemon.species.capitalize()
 
+    def resetDimensions(self, rectLeft, rectTop, rectWidth, rectHeight): 
+        self.rectLeft = rectLeft
+        self.rectTop = rectTop
+        self.rectWidth = rectWidth
+        self.rectHeight = rectHeight
+
     @staticmethod
     def distance(x1, y1, x2, y2): 
         return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
@@ -82,9 +88,10 @@ class TextInput:
         if (mouseX > self.rectLeft + self.rectWidth or mouseX < self.rectLeft): 
             self.active = False
         # Check if mouse outside Y bounds
-        if (mouseY > self.rectTop + self.rectHeight or mouseY < self.rectTop): 
+        elif (mouseY > self.rectTop + self.rectHeight or mouseY < self.rectTop): 
             self.active = False
-        self.active = True
+        else: 
+            self.active = True
 
     def typeChar(self, key): 
         if self.active: 
@@ -92,8 +99,7 @@ class TextInput:
                 self.text = self.text[:-1]
             elif key.isalpha() and len(key) == 1: 
                 self.text += key
-            elif key.iswhitespace(): 
-                self.text += ' '
         
-        
+    def getButton(self): 
+        return self.button
         

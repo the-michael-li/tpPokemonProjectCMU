@@ -100,7 +100,7 @@ class Pokemon:
         self.setNature('serious')
 
         # Get in-battle stats based on equation
-        self.battleStats = None
+        self.battleStats = [None, None, None, None, None, None]
         self.startingStats = None
         self.calculateInitialBattleStats()
         self.currHealth = self.startingStats[0]
@@ -287,7 +287,7 @@ class Pokemon:
             pass
     
     def drawSprite(self, xPos, yPos, width, height): 
-        drawImage(self.iconURL, xPos, yPos, width, height)
+        drawImage(self.iconURL, xPos, yPos, width=width, height=height)
     
-    def drawSprite(self, xPos, yPos, width, height): 
-        drawImage(self.battleURL, xPos, yPos, width, height)
+    def drawBattleSprite(self, xPos, yPos, width, height): 
+        drawImage(self.battleURL, xPos, yPos, width=width, height=height)
