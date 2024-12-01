@@ -1,5 +1,6 @@
 # Pokemon data from Pokeapi.co
 # Battle background image from https://www.pinterest.com/ideas/pokemon-battle-background/934038905355/
+# Pokemon formulas from https://bulbagarden.net/home/
 
 from cmu_graphics import *
 import requests, pickle, os, pathlib
@@ -9,7 +10,7 @@ from pokemon import Pokemon
 from uiElements import Button, TextInput
 '''
 Make generic moves
-cmu_graphics won't work?
+cmu_graphics screen changes sizes
 '''
     
 def loadSound(relativePath):
@@ -164,19 +165,23 @@ def pokeBuild_onKeyPress(app, key):
 def battle_onScreenActivate(app): 
     # Given one move right now: 
     app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[-1], 0)
+    app.currPlayPokeIndex = 0
+    app.currOppPokeIndex = 0
+    makeMoveButtons(app)
 
+
+def makeMoveButtons(app): 
     app.battleMovesButtons = []
     moveRectWidth = app.width // 10
     moveRectHeight = app.height // 18
     for moveSlot in range(4): 
         rectLeft = app.width - (app.width//8 + ((3-moveSlot) % 2) * (moveRectWidth + app.width // 64))
         rectTop = app.height - (app.height//8 + ((3-moveSlot) // 2) * (moveRectHeight + app.height // 32))
-        text = (app.pokemonTeam[0].movesToUse[moveSlot].capitalize() 
-                if app.pokemonTeam[0].movesToUse[moveSlot] != None else 'None')
+        text = (app.pokemonTeam[app.currPlayPokeIndex].movesToUse[moveSlot].capitalize() 
+                if app.pokemonTeam[app.currPlayPokeIndex].movesToUse[moveSlot] != None else 'None')
         newButton = Button(rectLeft, rectTop, moveRectWidth, moveRectHeight, 
-                           text=text)
+                           text=text, theme='moves')
         app.battleMovesButtons += [newButton]
-
 
 def battle_redrawAll(app):
     drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
@@ -185,7 +190,49 @@ def battle_redrawAll(app):
         button.drawButton()
     
 def battle_onMousePress(app, mouseX, mouseY): 
-    pass
+    # Need to do this but for enemy as well
+    for button in app.battleMovesButtons: 
+        if button.clickIn(mouseX, mouseY) and button.text != None: 
+            moveInfo = Pokemon.moveEffectsDictionary[button.text.lower()]
+            hpDamage = getHealthDamage(app.pokemonTeam[app.currPlayPokeIndex], app.enemyTeam[app.currOppPokeIndex], moveInfo)
+            app.enemyTeam[app.currOppPokeIndex].setHealth(-hpDamage)
+    
+
+'''
+Get the amount of damage a move will do in hp based 
+on the two pokemon in battle and move used
+@param attackingPokemon - the pokemon using the attack
+@param defendingPokemon - the pokemon defending against the attack
+@param moveInfo - list of information about the move [movePower, type, physical/special=0/1]
+@return - health damage dealt to opponent
+'''
+def getHealthDamage(attackingPokemon, defendingPokemon, moveInfo): 
+    level = 50
+    critical = 2 if random.random() < (1/16) else 1
+    damage = ((2 * level * critical) / 5 + 2) * moveInfo[0]
+    # if special attack
+    if bool(moveInfo[2]): 
+        damage *= (attackingPokemon.getBattleStats()[3] / defendingPokemon.getBattleStats()[4])
+    else: 
+        damage *= (attackingPokemon.getBattleStats()[1] / defendingPokemon.getBattleStats()[2])
+    damage = (damage / 50) + 2
+    
+    stab = 1
+    for type in attackingPokemon.typing: 
+        if type == moveInfo[1]: 
+            stab = 1.5
+    damage *= stab
+
+    # supereffective or not very effective
+    for type in defendingPokemon.typing: 
+        if type in Pokemon.typeChart[moveInfo[1]].keys(): 
+            damage *= Pokemon.typeChart[moveInfo[1]][type]
+    
+    rng = random.randrange(217, 256) // 255 if damage != 1 else 1
+    damage = int(damage * rng)
+    return damage
+
+    
 
 def battle_onKeyPress(app, key): 
     pass

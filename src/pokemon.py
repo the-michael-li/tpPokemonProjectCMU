@@ -1,5 +1,6 @@
 # Pokemon data from Pokeapi.co
 # Battle background image from https://www.pinterest.com/ideas/pokemon-battle-background/934038905355/
+# Pokemon formulas from https://bulbagarden.net/home/
 
 from cmu_graphics import *
 import requests, pickle, os, pathlib
@@ -12,11 +13,22 @@ class Pokemon:
     with open('genOneNames', 'rb') as file:
         genOnePokemon = pickle.load(file)
 
-    # Imports a file of a dictionary of natures and their stat effects (increase index, decrease index)
+    # Imports a file of a dictionary of natures mapped to their stat effects (increase index, decrease index)
     natureEffectsDictionary = None
     with open('natureEffects', 'rb') as file:
         natureEffectsDictionary = pickle.load(file)
     
+    # Imports a file of a dictionary of moves mapped to their effects 
+    # [base power, type, physical/special] physical = 0, special = 1
+    moveEffectsDictionary = None
+    with open('moveEffects', 'rb') as file:
+        moveEffectsDictionary = pickle.load(file)
+    
+    # Imports a file of a dictionary of type mapped to dictionaries of types
+    # that map to how much damage is done (attackingType: defendingType: multiplier)
+    typeChart = None
+    with open('typeChart', 'rb') as file:
+        typeChart = pickle.load(file)
     ''' 
     Creates a basic instance of Pokemon Class
     @param name - name of the pokemon (str)
@@ -44,6 +56,7 @@ class Pokemon:
     startingStats: a list of starting battleStats for reference
     movesList: list of possible move names for the pokemon
     movesToUse: list of four moves that a pokemon can use in battle
+    typing: list of types of pokemon
 
 
     ToDo: start working on UI, 
@@ -98,6 +111,8 @@ class Pokemon:
         self.nature = None
         self.natureBattleEffects = None
         self.setNature('serious')
+
+        self.typing = copy.copy(self.infoDictionary['types'])
 
         # Get in-battle stats based on equation
         self.battleStats = [None, None, None, None, None, None]

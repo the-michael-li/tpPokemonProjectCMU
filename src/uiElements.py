@@ -43,6 +43,13 @@ class Button:
             drawLabel(self.text, self.rectLeft + self.rectWidth // 2, 
                     self.rectTop + self.rectHeight // 2, 
                     fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//4)
+        elif (self.theme == 'moves'): 
+            drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
+                 fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=5)
+
+            drawLabel(self.text, self.rectLeft + self.rectWidth // 2, 
+                      self.rectTop + self.rectHeight // 2,
+                      fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//2)
     
     def addPokemon(self, pokemon): 
         self.theme = 'pokeAdded'
