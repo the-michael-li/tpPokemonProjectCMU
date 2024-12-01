@@ -37,12 +37,12 @@ class Button:
             drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
                  fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=5)
 
-            self.pokemon.drawSprite(self.rectLeft + self.rectWidth // 8, self.rectTop + self.rectHeight // 2, 
-                                    self.rectWidth // 8, self.rectHeight - 10)
+            self.pokemon.drawSprite(self.rectLeft + self.rectWidth // 8, self.rectTop, 
+                                    self.rectWidth // 4, self.rectWidth // 4)
 
             drawLabel(self.text, self.rectLeft + self.rectWidth // 2, 
                     self.rectTop + self.rectHeight // 2, 
-                    fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//8)
+                    fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//4)
     
     def addPokemon(self, pokemon): 
         self.theme = 'pokeAdded'

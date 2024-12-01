@@ -91,6 +91,12 @@ def pokeBuild_onScreenActivate(app):
     app.pokemonTeam[app.selectedIndex] = newPokemon
     app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
 
+    pokeBuildToTeamBuildButtonWidth = 300
+    pokeBuildToTeamBuildButtonHeight = 50
+    app.pokeBuildToTeamBuild = Button(app.width - pokeBuildToTeamBuildButtonWidth, 0,
+                                      pokeBuildToTeamBuildButtonWidth, pokeBuildToTeamBuildButtonHeight, 
+                                      text='Team Builder')
+
     uInputWidth = app.width // 8
     uInputHeight = app.height // 30
     
@@ -102,7 +108,8 @@ def pokeBuild_redrawAll(app):
     drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
     drawLabel(f'Pokémon No. {app.selectedIndex + 1}',app.width//6,app.height//16, bold=True,
               size=70, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
-    
+    app.pokeBuildToTeamBuild.drawButton()
+
     ############################################################
     # Pokemon Species UI Bar
     ############################################################
@@ -113,12 +120,12 @@ def pokeBuild_redrawAll(app):
     ############################################################
     # Pokemon Species Icon
     ############################################################
-    drawRect(29 * app.width//32, app.height//7, app.width // 30, app.width // 30, 
+    drawRect(29 * app.width//32, app.height//6, app.width // 12, app.width // 12, 
              fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
     drawLabel(app.teamBuildButtons[app.selectedIndex].text, 29 * app.width//32,2 * app.height//16, bold=True, align='left', 
-              size=25, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
-    app.teamBuildButtons[app.selectedIndex].pokemon.drawSprite(29 * app.width//32, app.height//7, 
-                                                               app.width // 30, app.width // 30)
+              size=40, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
+    app.teamBuildButtons[app.selectedIndex].pokemon.drawSprite(29 * app.width//32, app.height//6, 
+                                                               app.width // 12, app.width // 12)
 
 def pokeBuild_onMousePress(app, mouseX, mouseY): 
     app.pokeBuildSpeciesTxtBox.clickIn(mouseX, mouseY)
@@ -129,6 +136,8 @@ def pokeBuild_onMousePress(app, mouseX, mouseY):
             newPokemon = Pokemon(None, pokemonSpecies, 'me')
             app.pokemonTeam[app.selectedIndex] = newPokemon
             app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
+    if app.pokeBuildToTeamBuild.clickIn(mouseX, mouseY): 
+        setActiveScreen('teamBuild')
 
 def pokeBuild_onKeyPress(app, key): 
     app.pokeBuildSpeciesTxtBox.typeChar(key)
