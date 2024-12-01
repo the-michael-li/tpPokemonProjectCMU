@@ -219,7 +219,6 @@ def battle_onMousePress(app, mouseX, mouseY):
         return
     # Need to do this but for enemy as well
     for button in app.battleMovesButtons: 
-        print(button.clickIn(mouseX, mouseY) and button.text.lower() in Pokemon.moveEffectsDictionary and button.text != 'None')
         if button.clickIn(mouseX, mouseY) and button.text.lower() in Pokemon.moveEffectsDictionary and button.text != 'None': 
             moveInfo = Pokemon.moveEffectsDictionary[button.text.lower()]
             hpDamage = getHealthDamage(app.pokemonTeam[app.currPlayPokeIndex], app.enemyTeam[app.currOppPokeIndex], moveInfo)
