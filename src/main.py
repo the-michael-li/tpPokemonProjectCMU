@@ -3,7 +3,7 @@
 
 from cmu_graphics import *
 import requests, pickle, os, pathlib
-import random, copy
+import random, copy, time
 from PIL import Image
 from pokemon import Pokemon
 from uiElements import Button, TextInput
@@ -33,7 +33,9 @@ def restart(app):
     for _ in range(numEnemyPokemon): 
         randomPokemon = random.choice(list(Pokemon.genOnePokemon))
         newEnemyPokemon = Pokemon(randomPokemon, randomPokemon, 'opp')
+        newEnemyPokemon.addMove(newEnemyPokemon.getMoves()[-1], 0)
         app.enemyTeam.append(newEnemyPokemon)
+        time.sleep(0.000002)
     app.pokemonTeam = [None, None, None, None, None, None]
     app.teamBuildButtons = []
 
@@ -93,7 +95,7 @@ def teamBuild_onMousePress(app, mouseX, mouseY):
         if app.teamBuildButtons[buttonIndex].clickIn(mouseX, mouseY): 
             app.selectedIndex = buttonIndex
             setActiveScreen('pokeBuild')
-    if app.teamBuildToBattleButton.clickIn(mouseX, mouseY): 
+    if app.pokemonTeam[0] != None and app.teamBuildToBattleButton.clickIn(mouseX, mouseY): 
         setActiveScreen('battle')
 
     
@@ -159,9 +161,34 @@ def pokeBuild_onKeyPress(app, key):
 ############################################################
 # Battle Screen
 ############################################################
+def battle_onScreenActivate(app): 
+    # Given one move right now: 
+    app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[-1], 0)
+
+    app.battleMovesButtons = []
+    moveRectWidth = app.width // 10
+    moveRectHeight = app.height // 18
+    for moveSlot in range(4): 
+        rectLeft = app.width - (app.width//8 + ((3-moveSlot) % 2) * (moveRectWidth + app.width // 64))
+        rectTop = app.height - (app.height//8 + ((3-moveSlot) // 2) * (moveRectHeight + app.height // 32))
+        text = (app.pokemonTeam[0].movesToUse[moveSlot].capitalize() 
+                if app.pokemonTeam[0].movesToUse[moveSlot] != None else 'None')
+        newButton = Button(rectLeft, rectTop, moveRectWidth, moveRectHeight, 
+                           text=text)
+        app.battleMovesButtons += [newButton]
+
+
 def battle_redrawAll(app):
     drawImage(app.img, app.width // 2, app.height // 2, width=app.width, 
               height=app.height, align='center')
+    for button in app.battleMovesButtons: 
+        button.drawButton()
+    
+def battle_onMousePress(app, mouseX, mouseY): 
+    pass
+
+def battle_onKeyPress(app, key): 
+    pass
 
 ############################################################
 # Main
