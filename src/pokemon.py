@@ -285,3 +285,9 @@ class Pokemon:
         # Template for if I want to implement status conditions
         if self.statusCondition != None: 
             pass
+    
+    def drawSprite(self, xPos, yPos, width, height): 
+        drawImage(self.iconURL, xPos, yPos, width, height)
+    
+    def drawSprite(self, xPos, yPos, width, height): 
+        drawImage(self.battleURL, xPos, yPos, width, height)

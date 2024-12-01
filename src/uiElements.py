@@ -4,11 +4,12 @@ from PIL import Image
 from pokemon import Pokemon
 
 class Button: 
-    def __init__(self, rectLeft, rectTop, rectWidth, rectHeight, theme='teamAdd'): 
+    def __init__(self, rectLeft, rectTop, rectWidth, rectHeight, text='+', theme='teamAdd'): 
         self.rectLeft = rectLeft
         self.rectTop = rectTop
         self.rectWidth = rectWidth
         self.rectHeight = rectHeight
+        self.text = text
         self.theme = theme
         self.pokemon = None
 
@@ -29,15 +30,24 @@ class Button:
             drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
                  fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=5)
         
-            drawLabel('+', self.rectLeft + self.rectWidth // 2, 
+            drawLabel(self.text, self.rectLeft + self.rectWidth // 2, 
                     self.rectTop + self.rectHeight // 2, 
-                    fill=rgb(250, 2, 2), bold=True, size=45)
+                    fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//2)
         elif (self.theme == 'pokeAdded'): 
-            pass
+            drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
+                 fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=5)
+
+            self.pokemon.drawSprite(self.rectLeft + self.rectWidth // 8, self.rectTop + self.rectHeight // 2, 
+                                    self.rectWidth // 8, self.rectHeight - 10)
+
+            drawLabel(self.text, self.rectLeft + self.rectWidth // 2, 
+                    self.rectTop + self.rectHeight // 2, 
+                    fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//8)
     
     def addPokemon(self, pokemon): 
         self.theme = 'pokeAdded'
         self.pokemon = pokemon
+        self.text = self.pokemon.species.capitalize()
 
     @staticmethod
     def distance(x1, y1, x2, y2): 
@@ -51,6 +61,8 @@ class TextInput:
         self.rectHeight = rectHeight
         self.active = False
         self.text = ''
+        self.button = Button(rectLeft + rectWidth, rectTop, 
+                             rectWidth // 3, rectHeight, text='Choose')
 
     def drawBar(self): 
         if not self.active: 
@@ -63,6 +75,7 @@ class TextInput:
                 fill=color, border=border, borderWidth=3)
         drawLabel(self.text, self.rectLeft + 5, self.rectTop + self.rectHeight // 2, 
                   size=self.rectHeight - 10, fill='black', align='left')
+        self.button.drawButton()
     
     def clickIn(self, mouseX, mouseY): 
         # Check if mouse outside X bounds
@@ -77,7 +90,7 @@ class TextInput:
         if self.active: 
             if key == 'backspace': 
                 self.text = self.text[:-1]
-            elif key.isalpha(): 
+            elif key.isalpha() and len(key) == 1: 
                 self.text += key
             elif key.iswhitespace(): 
                 self.text += ' '
