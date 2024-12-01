@@ -119,6 +119,7 @@ class Pokemon:
         self.startingStats = None
         self.calculateInitialBattleStats()
         self.currHealth = self.startingStats[0]
+        self.currHealthPercentage = self.currHealth / self.startingStats[0]
 
         self.movesList = []
         # List of possible moves for this pokemon (gen 1 only)
@@ -138,10 +139,10 @@ class Pokemon:
 
     '''
     Find and return current hp value
-    @return - hp value (int)
+    @return - hp value (int), percentage of hp (float), color of health bar (str)
     '''
-    def getHealth(self): 
-        return self.currHealth
+    def getCurrHealthInfo(self): 
+        return (self.currHealth, self.currHealthPercentage, self.healthStatus)
     
     '''
     Set currHealth based on the change in health, if fainted, sets health to 0 and pokemonFainted to True
@@ -149,15 +150,15 @@ class Pokemon:
     @param healthChange - Name change in health (-ve if damage, +ve if healing)
     '''
     def setHealth(self, healthChange): 
-        self.currHealth += healthChange
+        self.currHealth += int(healthChange)
         if(self.currHealth <= 0): 
             self.pokemonFainted = True
             self.currHealth = 0
 
-        currHealthPercentage = self.currHealth / self.startingStats[0]
-        if currHealthPercentage > 0.5: 
+        self.currHealthPercentage = self.currHealth / self.startingStats[0]
+        if self.currHealthPercentage > 0.5: 
             self.healthStatus = 'green'
-        elif currHealthPercentage > 0.2: 
+        elif self.currHealthPercentage > 0.2: 
             self.healthStatus = 'yellow'
         else: 
             self.healthStatus = 'red'

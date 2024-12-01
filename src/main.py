@@ -27,13 +27,13 @@ def onAppStart(app):
     restart(app)
 
 def restart(app): 
-    app.width, app.height = 2560, 1600
+    app.win, app.lose = False, False
     setActiveScreen('start')
     app.enemyTeam = []
     numEnemyPokemon = 1
     for _ in range(numEnemyPokemon): 
         randomPokemon = random.choice(list(Pokemon.genOnePokemon))
-        newEnemyPokemon = Pokemon(randomPokemon, randomPokemon, 'opp')
+        newEnemyPokemon = Pokemon(randomPokemon.capitalize(), randomPokemon, 'opp')
         newEnemyPokemon.addMove(newEnemyPokemon.getMoves()[-1], 0)
         app.enemyTeam.append(newEnemyPokemon)
         time.sleep(0.000002)
@@ -137,11 +137,11 @@ def pokeBuild_redrawAll(app):
     ############################################################
     # Pokemon Species Icon
     ############################################################
-    drawRect(29 * app.width//32, app.height//6, app.width // 12, app.width // 12, 
+    drawRect(27 * app.width//32, app.height//6, app.width // 12, app.width // 12, 
              fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
-    drawLabel(app.teamBuildButtons[app.selectedIndex].text, 29 * app.width//32,2 * app.height//16, bold=True, align='left', 
+    drawLabel(app.teamBuildButtons[app.selectedIndex].text, 27 * app.width//32,2 * app.height//16, bold=True, align='left', 
               size=40, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
-    app.teamBuildButtons[app.selectedIndex].pokemon.drawSprite(29 * app.width//32, app.height//6, 
+    app.teamBuildButtons[app.selectedIndex].pokemon.drawSprite(27 * app.width//32, app.height//6, 
                                                                app.width // 12, app.width // 12)
 
 def pokeBuild_onMousePress(app, mouseX, mouseY): 
@@ -164,16 +164,16 @@ def pokeBuild_onKeyPress(app, key):
 ############################################################
 def battle_onScreenActivate(app): 
     # Given one move right now: 
-    app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[-1], 0)
+    randomMoveIndex = random.randint(0, len(app.pokemonTeam[0].getMoves()) - 1)
+    # app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[randomMoveIndex], 0)
+    app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[1], 0)
     app.currPlayPokeIndex = 0
     app.currOppPokeIndex = 0
     makeMoveButtons(app)
 
-
 def makeMoveButtons(app): 
     app.battleMovesButtons = []
-    moveRectWidth = app.width // 10
-    moveRectHeight = app.height // 18
+    moveRectWidth, moveRectHeight = app.width // 9, app.height // 18
     for moveSlot in range(4): 
         rectLeft = app.width - (app.width//8 + ((3-moveSlot) % 2) * (moveRectWidth + app.width // 64))
         rectTop = app.height - (app.height//8 + ((3-moveSlot) // 2) * (moveRectHeight + app.height // 32))
@@ -188,14 +188,56 @@ def battle_redrawAll(app):
               height=app.height, align='center')
     for button in app.battleMovesButtons: 
         button.drawButton()
+    app.pokemonTeam[app.currPlayPokeIndex].drawBattleSprite(app.width//6, 9*app.height//16, 
+                                                            app.width//4, app.width//4)
+    app.enemyTeam[app.currOppPokeIndex].drawBattleSprite(17*app.width//24, 4*app.height//9, 
+                                                            app.width//8, app.width//8)
+    playHpValue, playHpRatio, playHpColor = app.pokemonTeam[app.currPlayPokeIndex].getCurrHealthInfo()
+    oppHpValue, oppHpRatio, oppHpColor = app.enemyTeam[app.currOppPokeIndex].getCurrHealthInfo()
+    drawHealthBar(app, 24*app.width//32, 23*app.height//32, playHpValue, playHpRatio, playHpColor, 
+                  app.pokemonTeam[app.currPlayPokeIndex].name)
+    drawHealthBar(app, app.width//32, app.height//16, oppHpValue, oppHpRatio, oppHpColor, 
+                  app.enemyTeam[app.currOppPokeIndex].name)
+    if app.win or app.lose: 
+        drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101), opacity=50)
+        ending = 'won!!!' if app.win else 'lost :('
+        drawLabel(f'You {ending}', app.width//2, app.height//2, size=app.height//5)
+        drawLabel('Press r to restart', app.width//2, app.height//2 + app.height//4, size=app.height//10)
+
+def drawHealthBar(app, rectLeft, rectTop, hpVal, hpRatio, color, text): 
+    rectWidth, rectHeight = app.width//10, app.height//24
+    drawRect(rectLeft, rectTop, rectWidth, rectHeight,fill='darkGray', border='black', borderWidth=2)
+    if(hpRatio != 0): 
+        drawRect(rectLeft, rectTop, rectWidth * hpRatio, rectHeight,fill=color)
+    else: 
+        drawRect(rectLeft, rectTop, 5, rectHeight,fill=color)
+    drawLabel(str(hpVal), rectLeft + rectWidth//2, rectTop + rectHeight//2, size=rectHeight//2)
+    drawLabel(text, rectLeft + 5, rectTop - rectHeight//4, size=rectHeight//2, align='left')
     
 def battle_onMousePress(app, mouseX, mouseY): 
+    if app.win or app.lose: 
+        return
     # Need to do this but for enemy as well
     for button in app.battleMovesButtons: 
-        if button.clickIn(mouseX, mouseY) and button.text != None: 
+        print(button.clickIn(mouseX, mouseY) and button.text.lower() in Pokemon.moveEffectsDictionary and button.text != 'None')
+        if button.clickIn(mouseX, mouseY) and button.text.lower() in Pokemon.moveEffectsDictionary and button.text != 'None': 
             moveInfo = Pokemon.moveEffectsDictionary[button.text.lower()]
             hpDamage = getHealthDamage(app.pokemonTeam[app.currPlayPokeIndex], app.enemyTeam[app.currOppPokeIndex], moveInfo)
             app.enemyTeam[app.currOppPokeIndex].setHealth(-hpDamage)
+            break
+
+    numOppsFainted = 0
+    for oppPokemon in app.enemyTeam: 
+        if oppPokemon.currHealth == 0: 
+            numOppsFainted += 1
+    if numOppsFainted == len(app.enemyTeam): 
+        app.win = True
+    numAllyFainted = 0
+    for allyPokemon in app.pokemonTeam: 
+        if allyPokemon == None or allyPokemon.currHealth == 0: 
+            numAllyFainted += 1
+    if numAllyFainted == len(app.pokemonTeam): 
+        app.lose = True
     
 
 '''
@@ -228,19 +270,19 @@ def getHealthDamage(attackingPokemon, defendingPokemon, moveInfo):
         if type in list(typesToConsider): 
             damage *= Pokemon.typeChart[moveInfo[1]][type]
     
-    rng = random.randrange(217, 256) // 255 if damage != 1 else 1
-    damage = int(damage * rng)
+    rng = random.randrange(217, 256)
+    damage = (damage * rng) // 255
     return damage
 
-    
-
 def battle_onKeyPress(app, key): 
-    pass
+    if app.win or app.lose and key == 'r': 
+        restart(app)
+
 
 ############################################################
 # Main
 ############################################################
 def main():
-    runAppWithScreens(initialScreen='start')
+    runAppWithScreens(width=2560, height=1600, initialScreen='start')
 
 main()
