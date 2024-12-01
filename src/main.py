@@ -28,6 +28,14 @@ def restart(app):
     setActiveScreen('start')
     app.pokemonTeam = [None, None, None, None, None, None]
     app.teamBuildButtons = []
+    print(app.width, app.height)
+    pokemonRectWidth = 5 * app.width // 16
+    pokemonRectHeight = app.height // 8
+    for pokemonSlot in range(len(app.pokemonTeam)): 
+        rectLeft = app.width // 8 + (pokemonSlot % 2) * (pokemonRectWidth + app.width // 8)
+        rectTop = app.height // 4 + (pokemonSlot // 2) * (pokemonRectHeight + app.height // 8)
+        newButton = Button(rectLeft, rectTop, pokemonRectWidth, pokemonRectHeight)
+        app.teamBuildButtons.append(newButton)
 
 ############################################################
 # Start Screen
@@ -50,14 +58,6 @@ def start_onMousePress(app, mouseX, mouseY):
 ############################################################
 def teamBuild_onScreenActivate(app): 
     app.selectedIndex = None
-
-    pokemonRectWidth = 5 * app.width // 16
-    pokemonRectHeight = app.height // 8
-    for pokemonSlot in range(len(app.pokemonTeam)): 
-        rectLeft = app.width // 8 + (pokemonSlot % 2) * (pokemonRectWidth + app.width // 8)
-        rectTop = app.height // 4 + (pokemonSlot // 2) * (pokemonRectHeight + app.height // 8)
-        newButton = Button(rectLeft, rectTop, pokemonRectWidth, pokemonRectHeight)
-        app.teamBuildButtons.append(newButton)
 
 def teamBuild_redrawAll(app):
     drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
@@ -95,12 +95,11 @@ def pokeBuild_redrawAll(app):
     
     app.pokeBuildSpeciesTxtBox.drawBar()
 
-    
 def pokeBuild_onMousePress(app, mouseX, mouseY): 
-    app.speciesTxtBox.clickIn(mouseX, mouseY)
+    app.pokeBuildSpeciesTxtBox.clickIn(mouseX, mouseY)
 
 def pokeBuild_onKeyPress(app, key): 
-    app.speciesTxtBox.typeChar(key)
+    app.pokeBuildSpeciesTxtBox.typeChar(key)
     
 ############################################################
 # Battle Screen
