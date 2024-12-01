@@ -222,10 +222,10 @@ def getHealthDamage(attackingPokemon, defendingPokemon, moveInfo):
         if type == moveInfo[1]: 
             stab = 1.5
     damage *= stab
-
+    typesToConsider = Pokemon.typeChart[moveInfo[1]].keys()
     # supereffective or not very effective
     for type in defendingPokemon.typing: 
-        if type in Pokemon.typeChart[moveInfo[1]].keys(): 
+        if type in list(typesToConsider): 
             damage *= Pokemon.typeChart[moveInfo[1]][type]
     
     rng = random.randrange(217, 256) // 255 if damage != 1 else 1
