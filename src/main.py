@@ -31,11 +31,12 @@ def restart(app):
     setActiveScreen('start')
     app.enemyTeam = []
     numEnemyPokemon = 1
-    for _ in range(numEnemyPokemon): 
+    for i in range(numEnemyPokemon): 
         randomPokemon = random.choice(list(Pokemon.genOnePokemon))
         newEnemyPokemon = Pokemon(randomPokemon.capitalize(), randomPokemon, 'opp')
-        newEnemyPokemon.addMove(newEnemyPokemon.getMoves()[-1], 0)
         app.enemyTeam.append(newEnemyPokemon)
+        randomMoveIndex = random.randint(0, len(app.enemyTeam[i].getMoves()) - 1)
+        app.enemyTeam[0].addMove(app.enemyTeam[0].getMoves()[randomMoveIndex], 0)
         time.sleep(0.000002)
     app.pokemonTeam = [None, None, None, None, None, None]
     app.teamBuildButtons = []
@@ -104,7 +105,7 @@ def teamBuild_onMousePress(app, mouseX, mouseY):
 # Pokemon Build Screen
 ############################################################
 def pokeBuild_onScreenActivate(app):
-    newPokemon = Pokemon(None, 'ditto', 'me')
+    newPokemon = Pokemon('no_name', 'ditto', 'me')
     app.pokemonTeam[app.selectedIndex] = newPokemon
     app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
 
