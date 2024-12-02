@@ -44,7 +44,7 @@ def restart(app):
         time.sleep(0.000002)
     app.pokemonTeam = [None, None, None, None, None, None]
     app.teamBuildButtons = []
-
+    app.stepTimeBro = 0
     pokemonRectWidth = 5 * app.width // 16
     pokemonRectHeight = app.height // 8
     for pokemonSlot in range(len(app.pokemonTeam)): 
@@ -170,11 +170,14 @@ def pokeBuild_onKeyPress(app, key):
 def battle_onScreenActivate(app): 
     # Given one move right now: 
     randomMoveIndex = random.randint(0, len(app.pokemonTeam[0].getMoves()) - 1)
-    # app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[randomMoveIndex], 0)
-    app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[1], 0)
+    app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[randomMoveIndex], 0)
     app.currPlayPokeIndex = 0
     app.currOppPokeIndex = 0
     makeMoveButtons(app)
+    app.activeMove = None
+    app.activePokemon = None
+    app.activeOppMove = None
+    app.activeOppPokemon = None
 
 def makeMoveButtons(app): 
     app.battleMovesButtons = []
@@ -203,11 +206,25 @@ def battle_redrawAll(app):
                   app.pokemonTeam[app.currPlayPokeIndex].name)
     drawHealthBar(app, app.width//32, app.height//16, oppHpValue, oppHpRatio, oppHpColor, 
                   app.enemyTeam[app.currOppPokeIndex].name)
+    
+    if app.activeMove != None or app.activeOppMove != None:
+        drawMoveLabel(app)
+
     if app.win or app.lose: 
         drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101), opacity=50)
         ending = 'won!!!' if app.win else 'lost :('
         drawLabel(f'You {ending}', app.width//2, app.height//2, size=app.height//5)
         drawLabel('Press r to restart', app.width//2, app.height//2 + app.height//4, size=app.height//10)
+
+def battle_onStep(app): 
+    if app.activeMove != None or app.activeOppMove != None: 
+        app.stepTimeBro += 1
+    if app.stepTimeBro >= 40: 
+        app.activeMove = None
+        app.activePokemon = None
+        app.activeOppMove = None
+        app.activeOppPokemon = None
+        app.stepTimeBro = 0
 
 def drawHealthBar(app, rectLeft, rectTop, hpVal, hpRatio, color, text): 
     rectWidth, rectHeight = app.width//10, app.height//24
@@ -229,8 +246,9 @@ def battle_onMousePress(app, mouseX, mouseY):
             oppHpDamage = getHealthDamage(app.pokemonTeam[app.currPlayPokeIndex], app.enemyTeam[app.currOppPokeIndex], moveInfo)
             randomMoveIndex = random.randint(0, 3)
             oppMoveInfo = [0, 'normal', 0]
-            if app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex] in Pokemon.moveEffectsDictionary: 
-                oppMoveInfo = Pokemon.moveEffectsDictionary[app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]]
+            randomMoveName = app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]
+            if randomMoveName in Pokemon.moveEffectsDictionary: 
+                oppMoveInfo = Pokemon.moveEffectsDictionary[randomMoveName]
             allyHpDamage = getHealthDamage(app.enemyTeam[app.currOppPokeIndex], app.pokemonTeam[app.currPlayPokeIndex], oppMoveInfo)
 
             allySpeed = app.pokemonTeam[app.currPlayPokeIndex].getBattleStats()[5]
@@ -249,9 +267,22 @@ def battle_onMousePress(app, mouseX, mouseY):
                 app.enemyTeam[app.currOppPokeIndex].setHealth(-oppHpDamage)
                 if checkEndGame(app, 'play') == True: 
                     return
+            app.activeMove = button.text.lower()
+            app.activePokemon = app.pokemonTeam[app.currPlayPokeIndex].name
+            app.activeOppMove = randomMoveName
+            app.activeOppPokemon = app.enemyTeam[app.currOppPokeIndex].name
             break
 
-    
+def drawMoveLabel(app): 
+    allySpeed = app.pokemonTeam[app.currPlayPokeIndex].getBattleStats()[5]
+    oppSpeed = app.enemyTeam[app.currOppPokeIndex].getBattleStats()[5]
+    drawRect(0, 7*app.height//8, 3*app.width//4, app.height//8, fill='white',
+              border=rgb(60, 90, 166), borderWidth=5)
+    if (allySpeed > oppSpeed and app.stepTimeBro <= 20) or (allySpeed < oppSpeed and app.stepTimeBro > 20): 
+        drawLabel(f'{app.activePokemon} used {app.activeMove}!', 3*app.width//8, 15*app.height//16, size=app.height//18)
+    else: 
+        drawLabel(f'{app.activeOppPokemon} used {app.activeOppMove}!', 3*app.width//8, 15*app.height//16, size=app.height//18)
+
 def checkEndGame(app, side): 
     numOppsFainted = 0
     for oppPokemon in app.enemyTeam: 
@@ -285,7 +316,7 @@ def getHealthDamage(attackingPokemon, defendingPokemon, moveInfo):
         damage *= (attackingPokemon.getBattleStats()[3] / defendingPokemon.getBattleStats()[4])
     else: 
         damage *= (attackingPokemon.getBattleStats()[1] / defendingPokemon.getBattleStats()[2])
-    damage = (damage / 50) + 2
+    damage = (damage / 50) + 2 if damage != 0 else 0
     
     stab = 1
     for type in attackingPokemon.typing: 
