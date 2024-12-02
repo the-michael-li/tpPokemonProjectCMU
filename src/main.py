@@ -36,9 +36,9 @@ def restart(app):
         newEnemyPokemon = Pokemon(randomPokemon.capitalize(), randomPokemon, 'opp')
         app.enemyTeam.append(newEnemyPokemon)
         if len(app.enemyTeam[i].getMoves()) >= 4: 
-            for i in range(1, 4): 
+            for j in range(1, 4): 
                 randomMoveIndex = random.randint(0, len(app.enemyTeam[i].getMoves()) - 1)
-                app.enemyTeam[0].addMove(app.enemyTeam[0].getMoves()[randomMoveIndex], i)
+                app.enemyTeam[0].addMove(app.enemyTeam[0].getMoves()[randomMoveIndex], j)
         randomMoveIndex = random.randint(0, len(app.enemyTeam[i].getMoves()) - 1)
         app.enemyTeam[0].addMove(app.enemyTeam[0].getMoves()[randomMoveIndex], 0)
         time.sleep(0.000002)
@@ -227,30 +227,46 @@ def battle_onMousePress(app, mouseX, mouseY):
         if button.clickIn(mouseX, mouseY) and button.text.lower() in Pokemon.moveEffectsDictionary and button.text != 'None': 
             moveInfo = Pokemon.moveEffectsDictionary[button.text.lower()]
             oppHpDamage = getHealthDamage(app.pokemonTeam[app.currPlayPokeIndex], app.enemyTeam[app.currOppPokeIndex], moveInfo)
-            randomMoveIndex = random.randint(0, 4)
-            oppMoveInfo = Pokemon.moveEffectsDictionary[app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]]
+            randomMoveIndex = random.randint(0, 3)
+            oppMoveInfo = [0, 'normal', 0]
+            if app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex] in Pokemon.moveEffectsDictionary: 
+                oppMoveInfo = Pokemon.moveEffectsDictionary[app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]]
             allyHpDamage = getHealthDamage(app.enemyTeam[app.currOppPokeIndex], app.pokemonTeam[app.currPlayPokeIndex], oppMoveInfo)
 
-
-            app.enemyTeam[app.currOppPokeIndex].setHealth(-oppHpDamage)
-            
-            numOppsFainted = 0
-            for oppPokemon in app.enemyTeam: 
-                if oppPokemon.currHealth == 0: 
-                    numOppsFainted += 1
-            if numOppsFainted == len(app.enemyTeam): 
-                app.win = True
-            numAllyFainted = 0
-            for allyPokemon in app.pokemonTeam: 
-                if allyPokemon == None or allyPokemon.currHealth == 0: 
-                    numAllyFainted += 1
-            if numAllyFainted == len(app.pokemonTeam): 
-                app.lose = True
+            allySpeed = app.pokemonTeam[app.currPlayPokeIndex].getBattleStats()[5]
+            oppSpeed = app.enemyTeam[app.currOppPokeIndex].getBattleStats()[5]
+            if allySpeed >= oppSpeed: 
+                app.enemyTeam[app.currOppPokeIndex].setHealth(-oppHpDamage)
+                if checkEndGame(app, 'play') == True: 
+                    return
+                app.pokemonTeam[app.currPlayPokeIndex].setHealth(-allyHpDamage)
+                if checkEndGame(app, 'opp') == True: 
+                    return
+            elif allySpeed < oppSpeed: 
+                app.pokemonTeam[app.currPlayPokeIndex].setHealth(-allyHpDamage)
+                if checkEndGame(app, 'opp') == True: 
+                    return
+                app.enemyTeam[app.currOppPokeIndex].setHealth(-oppHpDamage)
+                if checkEndGame(app, 'play') == True: 
+                    return
             break
 
     
-def checkEndGame(app): 
-    pass
+def checkEndGame(app, side): 
+    numOppsFainted = 0
+    for oppPokemon in app.enemyTeam: 
+        if oppPokemon.currHealth == 0: 
+            numOppsFainted += 1
+    if side == 'play' and numOppsFainted == len(app.enemyTeam): 
+        app.win = True
+        return app.win
+    numAllyFainted = 0
+    for allyPokemon in app.pokemonTeam: 
+        if allyPokemon == None or allyPokemon.currHealth == 0: 
+            numAllyFainted += 1
+    if side == 'opp' and numAllyFainted == len(app.pokemonTeam): 
+        app.lose = True
+        return app.lose
 
 '''
 Get the amount of damage a move will do in hp based 
