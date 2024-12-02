@@ -9,8 +9,9 @@ from PIL import Image
 from pokemon import Pokemon
 from uiElements import Button, TextInput
 '''
-Make generic moves
-cmu_graphics screen changes sizes
+Some moves don't work
+If spam move other side won't go
+
 '''
     
 def loadSound(relativePath):
