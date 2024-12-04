@@ -33,6 +33,10 @@ def onAppStart(app):
     restart(app)
 
 def restart(app): 
+    app.currPlayPokeIndex = 0
+    app.currOppPokeIndex = 0
+    app.activePokemon = None
+    app.activeOppPokemon = None
     app.win, app.lose = False, False
     setActiveScreen('start')
     app.enemyTeam = []
@@ -107,7 +111,11 @@ def teamBuild_onMousePress(app, mouseX, mouseY):
         if app.teamBuildButtons[buttonIndex].clickIn(mouseX, mouseY): 
             app.selectedIndex = buttonIndex
             setActiveScreen('pokeBuild')
-    if app.pokemonTeam[0] != None and app.teamBuildToBattleButton.clickIn(mouseX, mouseY): 
+    if app.pokemonTeam[0] != None and app.teamBuildToBattleButton.clickIn(mouseX, mouseY):
+        app.currPlayPokeIndex = 0
+        app.currOppPokeIndex = 0
+        app.activePokemon = None
+        app.activeOppPokemon = None
         setActiveScreen('battle')
 
     
@@ -177,13 +185,14 @@ def battle_onScreenActivate(app):
     # Given one move right now: 
     randomMoveIndex = random.randint(0, len(app.pokemonTeam[0].getMoves()) - 1)
     app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[randomMoveIndex], 0)
-    app.currPlayPokeIndex = 0
-    app.currOppPokeIndex = 0
     makeMoveButtons(app)
+    moveRectWidth, moveRectHeight = app.width // 9, app.height // 18
+    rectLeft = app.width - (app.width//16)
+    rectTop = app.height - (app.height//24)
+    app.switchButton = Button(rectLeft, rectTop, moveRectWidth, moveRectHeight, 
+                              text='Switch', theme='moves')
     app.activeMove = None
-    app.activePokemon = None
     app.activeOppMove = None
-    app.activeOppPokemon = None
 
 def makeMoveButtons(app): 
     app.battleMovesButtons = []
@@ -202,6 +211,7 @@ def battle_redrawAll(app):
               height=app.height, align='center')
     for button in app.battleMovesButtons: 
         button.drawButton()
+    app.switchButton.drawButton()
     app.pokemonTeam[app.currPlayPokeIndex].drawBattleSprite(app.width//6, 9*app.height//16, 
                                                             app.width//4, app.width//4)
     app.enemyTeam[app.currOppPokeIndex].drawBattleSprite(17*app.width//24, 4*app.height//9, 
@@ -245,7 +255,9 @@ def drawHealthBar(app, rectLeft, rectTop, hpVal, hpRatio, color, text):
 def battle_onMousePress(app, mouseX, mouseY): 
     if app.win or app.lose or app.stepTimeBro != 0: 
         return
-    # Need to do this but for enemy as well
+    checkMovesHappening(app, mouseX, mouseY)
+    
+def checkMovesHappening(app, mouseX, mouseY): 
     for button in app.battleMovesButtons: 
         if button.clickIn(mouseX, mouseY) and button.text.lower() in Pokemon.moveEffectsDictionary and button.text != 'None': 
             moveInfo = Pokemon.moveEffectsDictionary[button.text.lower()]
