@@ -43,7 +43,7 @@ def restart(app):
     numEnemyPokemon = 1
     for i in range(numEnemyPokemon): 
         randomPokemon = random.choice(list(Pokemon.genOnePokemon))
-        newEnemyPokemon = Pokemon(randomPokemon.capitalize(), randomPokemon, 'opp')
+        newEnemyPokemon = Pokemon(None, randomPokemon, 'opp')
         app.enemyTeam.append(newEnemyPokemon)
         if len(app.enemyTeam[i].getMoves()) >= 4: 
             for j in range(1, 4): 
@@ -123,7 +123,7 @@ def teamBuild_onMousePress(app, mouseX, mouseY):
 # Pokemon Build Screen
 ############################################################
 def pokeBuild_onScreenActivate(app):
-    newPokemon = Pokemon('no_name', 'ditto', 'me')
+    newPokemon = Pokemon(None, 'ditto', 'me')
     app.pokemonTeam[app.selectedIndex] = newPokemon
     app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
 
@@ -187,8 +187,8 @@ def battle_onScreenActivate(app):
     app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[randomMoveIndex], 0)
     makeMoveButtons(app)
     moveRectWidth, moveRectHeight = app.width // 9, app.height // 18
-    rectLeft = app.width - (app.width//16)
-    rectTop = app.height - (app.height//24)
+    rectLeft = app.width - (app.width//8 + moveRectWidth // 2)
+    rectTop = app.height - (app.height//18)
     app.switchButton = Button(rectLeft, rectTop, moveRectWidth, moveRectHeight, 
                               text='Switch', theme='moves')
     app.activeMove = None
@@ -235,7 +235,7 @@ def battle_redrawAll(app):
 def battle_onStep(app): 
     if app.activeMove != None or app.activeOppMove != None: 
         app.stepTimeBro += 1
-    if app.stepTimeBro >= 10: 
+    if app.stepTimeBro >= 6: 
         app.activeMove = None
         app.activePokemon = None
         app.activeOppMove = None
@@ -295,7 +295,7 @@ def drawMoveLabel(app):
     oppSpeed = app.enemyTeam[app.currOppPokeIndex].getBattleStats()[5]
     drawRect(0, 7*app.height//8, 3*app.width//4, app.height//8, fill='white',
               border=rgb(60, 90, 166), borderWidth=5)
-    if (allySpeed > oppSpeed and app.stepTimeBro <= 5) or (allySpeed < oppSpeed and app.stepTimeBro > 5): 
+    if (allySpeed > oppSpeed and app.stepTimeBro <= 3) or (allySpeed < oppSpeed and app.stepTimeBro > 3): 
         drawLabel(f'{app.activePokemon} used {app.activeMove}!', 3*app.width//8, 15*app.height//16, size=app.height//18)
     else: 
         drawLabel(f'{app.activeOppPokemon} used {app.activeOppMove}!', 3*app.width//8, 15*app.height//16, size=app.height//18)

@@ -65,7 +65,7 @@ class Pokemon:
         and start figuring out how to access moves effects
     '''
     def __init__(self, name, species, team): 
-        self.name = name
+        self.name = name if name != None else species.capitalize()
 
         # Pokemon health status (options are 'green', 'yellow', and 'red')
         self.healthStatus = 'green'
