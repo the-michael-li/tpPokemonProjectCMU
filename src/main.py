@@ -9,9 +9,15 @@ from PIL import Image
 from pokemon import Pokemon
 from uiElements import Button, TextInput
 '''
+gameEnd Bug
 Some moves don't work
 If spam move other side won't go
-
+Swtiching
+Opp faints swtich
+Move custom
+add search popups
+Move popups take too long
+autoset pokemon name to pokemon species
 '''
     
 def loadSound(relativePath):
