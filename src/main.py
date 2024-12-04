@@ -13,7 +13,7 @@ from uiElements import Button, TextInput
 '''
 gameEnd Bug
 Swtiching
-Opp faints swtich
+Opp faints switch
 Move custom
 add search popups
 autoset pokemon name to pokemon species
