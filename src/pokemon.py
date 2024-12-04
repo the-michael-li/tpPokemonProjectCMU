@@ -309,3 +309,39 @@ class Pokemon:
     
     def drawBattleSprite(self, xPos, yPos, width, height): 
         drawImage(self.battleURL, xPos, yPos, width=width, height=height)
+
+    '''
+    Get the amount of damage a move will do in hp based 
+    on the two pokemon in battle and move used
+    @param attackingPokemon - the pokemon using the attack
+    @param defendingPokemon - the pokemon defending against the attack
+    @param moveInfo - list of information about the move [movePower, type, physical/special=0/1]
+    @return - health damage dealt to opponent
+    '''
+    @staticmethod
+    def getHealthDamage(attackingPokemon, defendingPokemon, moveInfo): 
+        level = 50
+        critical = 2 if random.random() < (1/16) else 1
+        damage = ((2 * level * critical) / 5 + 2) * int(moveInfo[0])
+        # if special attack
+        if bool(moveInfo[2]): 
+            damage *= (attackingPokemon.getBattleStats()[3] / defendingPokemon.getBattleStats()[4])
+        else: 
+            damage *= (attackingPokemon.getBattleStats()[1] / defendingPokemon.getBattleStats()[2])
+        damage = (damage / 50) + 2 if damage != 0 else 0
+        
+        stab = 1
+        for type in attackingPokemon.typing: 
+            if type == moveInfo[1]: 
+                stab = 1.5
+        damage *= stab
+        if moveInfo[1] in Pokemon.typeChart: 
+            typesToConsider = Pokemon.typeChart[moveInfo[1]].keys()
+            # supereffective or not very effective
+            for type in defendingPokemon.typing: 
+                if type in list(typesToConsider): 
+                    damage *= Pokemon.typeChart[moveInfo[1]][type]
+        
+        rng = random.randrange(217, 256)
+        damage = (damage * rng) // 255
+        return damage

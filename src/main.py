@@ -12,11 +12,10 @@ from pokemon import Pokemon
 from uiElements import Button, TextInput
 '''
 gameEnd Bug (Doesn't exist, just cant switch)
-Swtiching
+Switching
 Opp faints switch
 Move custom
 add search popups
-autoset pokemon name to pokemon species
 '''
     
 def loadSound(relativePath):
@@ -114,8 +113,8 @@ def teamBuild_onMousePress(app, mouseX, mouseY):
     if app.pokemonTeam[0] != None and app.teamBuildToBattleButton.clickIn(mouseX, mouseY):
         app.currPlayPokeIndex = 0
         app.currOppPokeIndex = 0
-        app.activePokemon = None
-        app.activeOppPokemon = None
+        app.activePokemon = app.pokemonTeam[app.currPlayPokeIndex].name
+        app.activeOppPokemon = app.enemyTeam[app.currOppPokeIndex].name
         setActiveScreen('battle')
 
     
@@ -237,9 +236,7 @@ def battle_onStep(app):
         app.stepTimeBro += 1
     if app.stepTimeBro >= 6: 
         app.activeMove = None
-        app.activePokemon = None
         app.activeOppMove = None
-        app.activeOppPokemon = None
         app.stepTimeBro = 0
 
 def drawHealthBar(app, rectLeft, rectTop, hpVal, hpRatio, color, text): 
@@ -251,22 +248,25 @@ def drawHealthBar(app, rectLeft, rectTop, hpVal, hpRatio, color, text):
         drawRect(rectLeft, rectTop, 5, rectHeight,fill=color)
     drawLabel(str(hpVal), rectLeft + rectWidth//2, rectTop + rectHeight//2, size=rectHeight//2)
     drawLabel(text, rectLeft + 5, rectTop - rectHeight//4, size=rectHeight//2, align='left')
-    
+
 def battle_onMousePress(app, mouseX, mouseY): 
     if app.win or app.lose or app.stepTimeBro != 0: 
         return
     checkMovesHappening(app, mouseX, mouseY)
+    # Switching
+    if app.switchButton.clickIn(mouseX, mouseY): 
+        pass
     
 def checkMovesHappening(app, mouseX, mouseY): 
     for button in app.battleMovesButtons: 
         if button.clickIn(mouseX, mouseY) and button.text.lower() in Pokemon.moveEffectsDictionary and button.text != 'None': 
             moveInfo = Pokemon.moveEffectsDictionary[button.text.lower()]
-            oppHpDamage = getHealthDamage(app.pokemonTeam[app.currPlayPokeIndex], app.enemyTeam[app.currOppPokeIndex], moveInfo)
+            oppHpDamage = Pokemon.getHealthDamage(app.pokemonTeam[app.currPlayPokeIndex], app.enemyTeam[app.currOppPokeIndex], moveInfo)
             randomMoveIndex = random.randint(0, 3)
             oppMoveInfo = [0, 'normal', 0]
             randomMoveName = app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]
             oppMoveInfo = Pokemon.moveEffectsDictionary[randomMoveName]
-            allyHpDamage = getHealthDamage(app.enemyTeam[app.currOppPokeIndex], app.pokemonTeam[app.currPlayPokeIndex], oppMoveInfo)
+            allyHpDamage = Pokemon.getHealthDamage(app.enemyTeam[app.currOppPokeIndex], app.pokemonTeam[app.currPlayPokeIndex], oppMoveInfo)
 
             allySpeed = app.pokemonTeam[app.currPlayPokeIndex].getBattleStats()[5]
             oppSpeed = app.enemyTeam[app.currOppPokeIndex].getBattleStats()[5]
@@ -285,9 +285,7 @@ def checkMovesHappening(app, mouseX, mouseY):
                 if checkEndGame(app, 'play') == True: 
                     return
             app.activeMove = button.text.lower()
-            app.activePokemon = app.pokemonTeam[app.currPlayPokeIndex].name
             app.activeOppMove = randomMoveName
-            app.activeOppPokemon = app.enemyTeam[app.currOppPokeIndex].name
             break
 
 def drawMoveLabel(app): 
@@ -315,42 +313,6 @@ def checkEndGame(app, side):
     if side == 'opp' and numAllyFainted == len(app.pokemonTeam): 
         app.lose = True
         return app.lose
-
-'''
-Get the amount of damage a move will do in hp based 
-on the two pokemon in battle and move used
-@param attackingPokemon - the pokemon using the attack
-@param defendingPokemon - the pokemon defending against the attack
-@param moveInfo - list of information about the move [movePower, type, physical/special=0/1]
-@return - health damage dealt to opponent
-'''
-def getHealthDamage(attackingPokemon, defendingPokemon, moveInfo): 
-    print(moveInfo)
-    level = 50
-    critical = 2 if random.random() < (1/16) else 1
-    damage = ((2 * level * critical) / 5 + 2) * int(moveInfo[0])
-    # if special attack
-    if bool(moveInfo[2]): 
-        damage *= (attackingPokemon.getBattleStats()[3] / defendingPokemon.getBattleStats()[4])
-    else: 
-        damage *= (attackingPokemon.getBattleStats()[1] / defendingPokemon.getBattleStats()[2])
-    damage = (damage / 50) + 2 if damage != 0 else 0
-    
-    stab = 1
-    for type in attackingPokemon.typing: 
-        if type == moveInfo[1]: 
-            stab = 1.5
-    damage *= stab
-    if moveInfo[1] in Pokemon.typeChart: 
-        typesToConsider = Pokemon.typeChart[moveInfo[1]].keys()
-        # supereffective or not very effective
-        for type in defendingPokemon.typing: 
-            if type in list(typesToConsider): 
-                damage *= Pokemon.typeChart[moveInfo[1]][type]
-    
-    rng = random.randrange(217, 256)
-    damage = (damage * rng) // 255
-    return damage
 
 def battle_onKeyPress(app, key): 
     if app.win or app.lose and key == 'r': 
