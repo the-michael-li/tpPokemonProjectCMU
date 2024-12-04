@@ -12,13 +12,10 @@ from pokemon import Pokemon
 from uiElements import Button, TextInput
 '''
 gameEnd Bug
-Some moves don't work
-If spam move other side won't go
 Swtiching
 Opp faints swtich
 Move custom
 add search popups
-Move popups take too long
 autoset pokemon name to pokemon species
 '''
     
@@ -228,7 +225,7 @@ def battle_redrawAll(app):
 def battle_onStep(app): 
     if app.activeMove != None or app.activeOppMove != None: 
         app.stepTimeBro += 1
-    if app.stepTimeBro >= 40: 
+    if app.stepTimeBro >= 10: 
         app.activeMove = None
         app.activePokemon = None
         app.activeOppMove = None
@@ -246,7 +243,7 @@ def drawHealthBar(app, rectLeft, rectTop, hpVal, hpRatio, color, text):
     drawLabel(text, rectLeft + 5, rectTop - rectHeight//4, size=rectHeight//2, align='left')
     
 def battle_onMousePress(app, mouseX, mouseY): 
-    if app.win or app.lose: 
+    if app.win or app.lose or app.stepTimeBro != 0: 
         return
     # Need to do this but for enemy as well
     for button in app.battleMovesButtons: 
@@ -256,8 +253,7 @@ def battle_onMousePress(app, mouseX, mouseY):
             randomMoveIndex = random.randint(0, 3)
             oppMoveInfo = [0, 'normal', 0]
             randomMoveName = app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]
-            if randomMoveName in Pokemon.moveEffectsDictionary: 
-                oppMoveInfo = Pokemon.moveEffectsDictionary[randomMoveName]
+            oppMoveInfo = Pokemon.moveEffectsDictionary[randomMoveName]
             allyHpDamage = getHealthDamage(app.enemyTeam[app.currOppPokeIndex], app.pokemonTeam[app.currPlayPokeIndex], oppMoveInfo)
 
             allySpeed = app.pokemonTeam[app.currPlayPokeIndex].getBattleStats()[5]
@@ -287,7 +283,7 @@ def drawMoveLabel(app):
     oppSpeed = app.enemyTeam[app.currOppPokeIndex].getBattleStats()[5]
     drawRect(0, 7*app.height//8, 3*app.width//4, app.height//8, fill='white',
               border=rgb(60, 90, 166), borderWidth=5)
-    if (allySpeed > oppSpeed and app.stepTimeBro <= 20) or (allySpeed < oppSpeed and app.stepTimeBro > 20): 
+    if (allySpeed > oppSpeed and app.stepTimeBro <= 5) or (allySpeed < oppSpeed and app.stepTimeBro > 5): 
         drawLabel(f'{app.activePokemon} used {app.activeMove}!', 3*app.width//8, 15*app.height//16, size=app.height//18)
     else: 
         drawLabel(f'{app.activeOppPokemon} used {app.activeOppMove}!', 3*app.width//8, 15*app.height//16, size=app.height//18)
@@ -317,9 +313,10 @@ on the two pokemon in battle and move used
 @return - health damage dealt to opponent
 '''
 def getHealthDamage(attackingPokemon, defendingPokemon, moveInfo): 
+    print(moveInfo)
     level = 50
     critical = 2 if random.random() < (1/16) else 1
-    damage = ((2 * level * critical) / 5 + 2) * moveInfo[0]
+    damage = ((2 * level * critical) / 5 + 2) * int(moveInfo[0])
     # if special attack
     if bool(moveInfo[2]): 
         damage *= (attackingPokemon.getBattleStats()[3] / defendingPokemon.getBattleStats()[4])
@@ -332,11 +329,12 @@ def getHealthDamage(attackingPokemon, defendingPokemon, moveInfo):
         if type == moveInfo[1]: 
             stab = 1.5
     damage *= stab
-    typesToConsider = Pokemon.typeChart[moveInfo[1]].keys()
-    # supereffective or not very effective
-    for type in defendingPokemon.typing: 
-        if type in list(typesToConsider): 
-            damage *= Pokemon.typeChart[moveInfo[1]][type]
+    if moveInfo[1] in Pokemon.typeChart: 
+        typesToConsider = Pokemon.typeChart[moveInfo[1]].keys()
+        # supereffective or not very effective
+        for type in defendingPokemon.typing: 
+            if type in list(typesToConsider): 
+                damage *= Pokemon.typeChart[moveInfo[1]][type]
     
     rng = random.randrange(217, 256)
     damage = (damage * rng) // 255
