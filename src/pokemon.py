@@ -1,6 +1,8 @@
 # Pokemon data from Pokeapi.co
 # Battle background image from https://www.pinterest.com/ideas/pokemon-battle-background/934038905355/
 # Pokemon formulas from https://bulbagarden.net/home/
+# ChatGPT taught me how to webscrape lololol
+# All the Move Info is webscraped from https://pokemondb.net/move/all
 
 from cmu_graphics import *
 import requests, pickle, os, pathlib
@@ -19,7 +21,7 @@ class Pokemon:
         natureEffectsDictionary = pickle.load(file)
     
     # Imports a file of a dictionary of moves mapped to their effects 
-    # [base power, type, physical/special] physical = 0, special = 1
+    # [base power, type, physical/special] physical = 0, special = 1, status = 2
     moveEffectsDictionary = None
     with open('moveEffects', 'rb') as file:
         moveEffectsDictionary = pickle.load(file)
