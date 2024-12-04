@@ -11,7 +11,7 @@ from PIL import Image
 from pokemon import Pokemon
 from uiElements import Button, TextInput
 '''
-gameEnd Bug
+gameEnd Bug (Doesn't exist, just cant switch)
 Swtiching
 Opp faints switch
 Move custom
