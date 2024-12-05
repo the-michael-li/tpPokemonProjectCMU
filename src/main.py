@@ -12,9 +12,6 @@ from pokemon import Pokemon
 from uiElements import Button, TextInput
 '''
 gameEnd Bug (Doesn't exist, just cant switch)
-opp attacks on switch
-Switching
-Opp faints switch
 Move custom
 add search popups
 '''
@@ -40,7 +37,7 @@ def restart(app):
     app.win, app.lose = False, False
     setActiveScreen('start')
     app.enemyTeam = []
-    numEnemyPokemon = 1
+    numEnemyPokemon = 2
     for i in range(numEnemyPokemon): 
         randomPokemon = random.choice(list(Pokemon.genOnePokemon))
         newEnemyPokemon = Pokemon(None, randomPokemon, 'opp')
@@ -62,6 +59,7 @@ def restart(app):
         rectTop = app.height // 4 + (pokemonSlot // 2) * (pokemonRectHeight + app.height // 8)
         newButton = Button(rectLeft, rectTop, pokemonRectWidth, pokemonRectHeight)
         app.teamBuildButtons += [newButton]
+    app.doDamageAfterSwitch = False
     
 
 ############################################################
@@ -194,6 +192,17 @@ def battle_onScreenActivate(app):
                               text='Switch', theme='moves')
     app.activeMove = None
     app.activeOppMove = None
+    if app.doDamageAfterSwitch: 
+        randomMoveIndex = random.randint(0, 3)
+        randomMoveName = app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]
+        oppMoveInfo = Pokemon.moveEffectsDictionary[randomMoveName]
+        allyHpDamage = Pokemon.getHealthDamage(app.enemyTeam[app.currOppPokeIndex], app.pokemonTeam[app.currPlayPokeIndex], oppMoveInfo)
+        app.pokemonTeam[app.currPlayPokeIndex].setHealth(-allyHpDamage)
+        if checkEndGame(app, 'opp') == True: 
+            return
+        app.activeMove = 'switch'
+        app.activeOppMove = randomMoveName
+    app.doDamageAfterSwitch = False
 
 def makeMoveButtons(app): 
     app.battleMovesButtons = []
@@ -256,17 +265,7 @@ def battle_onMousePress(app, mouseX, mouseY):
         return
     # Switching
     if app.switchButton.clickIn(mouseX, mouseY): 
-        
-        randomMoveIndex = random.randint(0, 3)
-        randomMoveName = app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]
-        oppMoveInfo = Pokemon.moveEffectsDictionary[randomMoveName]
-        allyHpDamage = Pokemon.getHealthDamage(app.enemyTeam[app.currOppPokeIndex], app.pokemonTeam[app.currPlayPokeIndex], oppMoveInfo)
-        app.pokemonTeam[app.currPlayPokeIndex].setHealth(-allyHpDamage)
-        if checkEndGame(app, 'opp') == True: 
-            return
-        app.activeMove = 'switch'
-        app.activeOppMove = randomMoveName
-
+        app.doDamageAfterSwitch = True
         setActiveScreen('userSwitch')
     checkMovesHappening(app, mouseX, mouseY)
     checkFaintToSwitch(app)
