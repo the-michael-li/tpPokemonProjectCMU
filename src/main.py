@@ -403,6 +403,8 @@ def checkEndGame(app, side):
         return app.lose
 
 def battle_onKeyPress(app, key): 
+    if key == 'tab': 
+        restart(app)
     if app.win or app.lose and key == 'r': 
         restart(app)
 
