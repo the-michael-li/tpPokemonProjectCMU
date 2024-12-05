@@ -121,8 +121,10 @@ class TextInput:
         if self.active: 
             if key == 'backspace': 
                 self.text = self.text[:-1]
-            elif key.isalpha() and len(key) == 1: 
-                self.text += key
+            elif key.isalnum() and len(key) == 1: 
+                self.text += str(key)
+            elif key == ',': 
+                self.text += ','
         
     def getButton(self): 
         return self.button

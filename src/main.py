@@ -222,11 +222,23 @@ def pokeBuild_onMousePress(app, mouseX, mouseY):
         app.pokeBuildNameTxtBox.text = ''
         app.pokemonTeam[app.selectedIndex].name = pokemonName
 
-    
+    app.pokeBuildMoveTxtBox.clickIn(mouseX, mouseY)
+    if app.pokeBuildMoveTxtBox.getButton().clickIn(mouseX, mouseY): 
+        pokemonMoveTLocation = app.pokeBuildMoveTxtBox.text.lower()
+        app.pokeBuildMoveTxtBox.text = ''
+        pokemonMove = pokemonMoveTLocation[:pokemonMoveTLocation.find(',')]
+        pokemonMoveLocation = -1
+        if pokemonMoveTLocation.find(',') + 1 < len(pokemonMoveTLocation) and pokemonMoveTLocation[pokemonMoveTLocation.find(',') + 1:].isdigit(): 
+            pokemonMoveLocation = int(pokemonMoveTLocation[pokemonMoveTLocation.find(',') + 1:])
+        if 0 <= pokemonMoveLocation < 4 and pokemonMove in app.pokemonTeam[app.selectedIndex].getMoves(): 
+            app.pokemonTeam[app.selectedIndex].addMove(pokemonMove, pokemonMoveLocation)
+            app.pokeBuildMoves[pokemonMoveLocation].text = pokemonMove
+        
 
 def pokeBuild_onKeyPress(app, key): 
     app.pokeBuildSpeciesTxtBox.typeChar(key)
     app.pokeBuildNameTxtBox.typeChar(key)
+    app.pokeBuildMoveTxtBox.typeChar(key)
     
 ############################################################
 # Battle Screen
