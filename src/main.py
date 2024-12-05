@@ -222,6 +222,8 @@ def pokeBuild_onMousePress(app, mouseX, mouseY):
         app.pokeBuildNameTxtBox.text = ''
         app.pokemonTeam[app.selectedIndex].name = pokemonName
 
+    
+
 def pokeBuild_onKeyPress(app, key): 
     app.pokeBuildSpeciesTxtBox.typeChar(key)
     app.pokeBuildNameTxtBox.typeChar(key)
