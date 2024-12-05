@@ -1,4 +1,5 @@
-# ChatGPT taught me how to webscrape lololol
+# ChatGPT taught me how to webscrape
+# This code is inspired from some example code from ChatGPT
 # All the Move Info is webscraped from https://pokemondb.net/move/all
 
 import requests
