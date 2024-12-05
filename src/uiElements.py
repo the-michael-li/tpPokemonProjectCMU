@@ -62,7 +62,7 @@ class Button:
     def addPokemon(self, pokemon): 
         self.theme = 'pokeAdded'
         self.pokemon = pokemon
-        self.text = self.pokemon.species.capitalize()
+        self.text = self.pokemon.name
 
     def resetDimensions(self, rectLeft, rectTop, rectWidth, rectHeight): 
         self.rectLeft = rectLeft

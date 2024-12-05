@@ -139,6 +139,20 @@ def pokeBuild_onScreenActivate(app):
     speciesTxtBoxTop = app.height//7
     app.pokeBuildSpeciesTxtBox = TextInput(speciesTxtBoxLeft, speciesTxtBoxTop, uInputWidth, uInputHeight)
 
+    nameTxtBoxLeft = app.width//32
+    nameTxtBoxTop = 2*app.height//7
+    app.pokeBuildNameTxtBox = TextInput(nameTxtBoxLeft, nameTxtBoxTop, uInputWidth, uInputHeight)
+
+    ############################################################
+    # Moves
+    ############################################################
+    pokemonRectWidth = 3 * app.width // 16
+    pokemonRectHeight = app.height // 16
+    for pokemonSlot in range(4): 
+        rectLeft = app.width//32 + (pokemonSlot % 2) * (pokemonRectWidth + app.width // 32)
+        rectTop = app.height // 2 + (pokemonSlot // 2) * (pokemonRectHeight + app.height // 8)
+        app.pokeBuildMoves[pokemonSlot] = Button(rectLeft, rectTop, pokemonRectWidth, pokemonRectHeight, text='None')
+
 def pokeBuild_redrawAll(app):
     drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
     drawLabel(f'Pokémon No. {app.selectedIndex + 1}',app.width//6,app.height//16, bold=True,
@@ -153,11 +167,18 @@ def pokeBuild_redrawAll(app):
     app.pokeBuildSpeciesTxtBox.drawBar()
 
     ############################################################
+    # Pokemon Name UI Bar
+    ############################################################
+    drawLabel('Choose a Name', app.width//32,app.height//4, bold=True, align='left', 
+              size=25, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
+    app.pokeBuildNameTxtBox.drawBar()
+
+    ############################################################
     # Pokemon Species Icon
     ############################################################
     drawRect(27 * app.width//32, app.height//6, app.width // 12, app.width // 12, 
              fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
-    drawLabel(app.teamBuildButtons[app.selectedIndex].text, 27 * app.width//32,2 * app.height//16, bold=True, align='left', 
+    drawLabel(app.teamBuildButtons[app.selectedIndex].pokemon.name, 27 * app.width//32,2 * app.height//16, bold=True, align='left', 
               size=40, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
     app.teamBuildButtons[app.selectedIndex].pokemon.drawSprite(27 * app.width//32, app.height//6, 
                                                                app.width // 12, app.width // 12)
@@ -165,6 +186,7 @@ def pokeBuild_redrawAll(app):
 def pokeBuild_onMousePress(app, mouseX, mouseY): 
     if app.pokeBuildToTeamBuildButton.clickIn(mouseX, mouseY): 
         setActiveScreen('teamBuild')
+    
     app.pokeBuildSpeciesTxtBox.clickIn(mouseX, mouseY)
     if app.pokeBuildSpeciesTxtBox.getButton().clickIn(mouseX, mouseY): 
         pokemonSpecies = app.pokeBuildSpeciesTxtBox.text.lower()
@@ -173,9 +195,16 @@ def pokeBuild_onMousePress(app, mouseX, mouseY):
             newPokemon = Pokemon(None, pokemonSpecies, 'me')
             app.pokemonTeam[app.selectedIndex] = newPokemon
             app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
+    
+    app.pokeBuildNameTxtBox.clickIn(mouseX, mouseY)
+    if app.pokeBuildNameTxtBox.getButton().clickIn(mouseX, mouseY): 
+        pokemonName = app.pokeBuildNameTxtBox.text.lower()
+        app.pokeBuildNameTxtBox.text = ''
+        app.pokemonTeam[app.selectedIndex].name = pokemonName
 
 def pokeBuild_onKeyPress(app, key): 
     app.pokeBuildSpeciesTxtBox.typeChar(key)
+    app.pokeBuildNameTxtBox.typeChar(key)
     
 ############################################################
 # Battle Screen
@@ -184,6 +213,7 @@ def battle_onScreenActivate(app):
     # Given one move right now: 
     randomMoveIndex = random.randint(0, len(app.pokemonTeam[0].getMoves()) - 1)
     app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[randomMoveIndex], 0)
+    
     makeMoveButtons(app)
     moveRectWidth, moveRectHeight = app.width // 9, app.height // 18
     rectLeft = app.width - (app.width//8 + moveRectWidth // 2)
