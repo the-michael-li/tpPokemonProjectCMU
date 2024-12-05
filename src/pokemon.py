@@ -137,7 +137,7 @@ class Pokemon:
         return self.name
     
     def __eq__(self, other): 
-        return isinstance(other, Pokemon) and self.species == other.species
+        return isinstance(other, Pokemon) and self.species == other.species and self.name == other.name
 
     '''
     Find and return current hp value
@@ -324,9 +324,9 @@ class Pokemon:
         critical = 2 if random.random() < (1/16) else 1
         damage = ((2 * level * critical) / 5 + 2) * int(moveInfo[0])
         # if special attack
-        if bool(moveInfo[2]): 
+        if moveInfo[2] == 1: 
             damage *= (attackingPokemon.getBattleStats()[3] / defendingPokemon.getBattleStats()[4])
-        else: 
+        elif moveInfo[2] == 0: 
             damage *= (attackingPokemon.getBattleStats()[1] / defendingPokemon.getBattleStats()[2])
         damage = (damage / 50) + 2 if damage != 0 else 0
         

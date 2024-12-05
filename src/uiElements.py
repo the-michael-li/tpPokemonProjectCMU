@@ -4,14 +4,14 @@ from PIL import Image
 from pokemon import Pokemon
 
 class Button: 
-    def __init__(self, rectLeft, rectTop, rectWidth, rectHeight, text='+', theme='teamAdd'): 
+    def __init__(self, rectLeft, rectTop, rectWidth, rectHeight, text='+', theme='teamAdd', pokemon='None'): 
         self.rectLeft = rectLeft
         self.rectTop = rectTop
         self.rectWidth = rectWidth
         self.rectHeight = rectHeight
         self.text = text
         self.theme = theme
-        self.pokemon = None
+        self.pokemon = pokemon
 
     def getPokemon(self): 
         return self.pokemon
@@ -25,7 +25,7 @@ class Button:
             return False
         return True
     
-    def drawButton(self): 
+    def drawButton(self, selected=False): 
         if (self.theme == 'teamAdd'): 
             drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
                  fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=5)
@@ -34,15 +34,22 @@ class Button:
                     self.rectTop + self.rectHeight // 2, 
                     fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//2)
         elif (self.theme == 'pokeAdded'): 
+            if selected: 
+                borderColor = rgb(240, 36, 36)
+                textSize = self.rectHeight//3.5
+            else: 
+                borderColor = rgb(60, 90, 166)
+                textSize = self.rectHeight//4
+            
             drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
-                 fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=5)
+                fill=rgb(255, 203, 5), border=borderColor, borderWidth=5)
 
             self.pokemon.drawSprite(self.rectLeft + self.rectWidth // 8, self.rectTop, 
                                     self.rectWidth // 4, self.rectWidth // 4)
 
             drawLabel(self.text, self.rectLeft + self.rectWidth // 2, 
                     self.rectTop + self.rectHeight // 2, 
-                    fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//4)
+                    fill=rgb(250, 2, 2), bold=True, size=textSize)
         elif (self.theme == 'moves'): 
             drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
                  fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=5)

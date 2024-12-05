@@ -12,6 +12,7 @@ from pokemon import Pokemon
 from uiElements import Button, TextInput
 '''
 gameEnd Bug (Doesn't exist, just cant switch)
+opp attacks on switch
 Switching
 Opp faints switch
 Move custom
@@ -47,10 +48,10 @@ def restart(app):
         if len(app.enemyTeam[i].getMoves()) >= 4: 
             for j in range(1, 4): 
                 randomMoveIndex = random.randint(0, len(app.enemyTeam[i].getMoves()) - 1)
-                app.enemyTeam[0].addMove(app.enemyTeam[0].getMoves()[randomMoveIndex], j)
+                app.enemyTeam[i].addMove(app.enemyTeam[i].getMoves()[randomMoveIndex], j)
         randomMoveIndex = random.randint(0, len(app.enemyTeam[i].getMoves()) - 1)
-        app.enemyTeam[0].addMove(app.enemyTeam[0].getMoves()[randomMoveIndex], 0)
-        time.sleep(0.000002)
+        app.enemyTeam[i].addMove(app.enemyTeam[i].getMoves()[randomMoveIndex], 0)
+        time.sleep(0.0000002)
     app.pokemonTeam = [None, None, None, None, None, None]
     app.teamBuildButtons = []
     app.stepTimeBro = 0
@@ -106,16 +107,17 @@ def teamBuild_redrawAll(app):
     app.teamBuildToBattleButton.drawButton()
 
 def teamBuild_onMousePress(app, mouseX, mouseY): 
+    if app.pokemonTeam[0] != None and app.teamBuildToBattleButton.clickIn(mouseX, mouseY):
+        app.currPlayPokeIndex = 0
+        app.currOppPokeIndex = 0
+        app.activePokemon = app.pokemonTeam[app.currPlayPokeIndex]
+        app.activeOppPokemon = app.enemyTeam[app.currOppPokeIndex]
+        setActiveScreen('battle')
     for buttonIndex in range(len(app.teamBuildButtons)): 
         if app.teamBuildButtons[buttonIndex].clickIn(mouseX, mouseY): 
             app.selectedIndex = buttonIndex
             setActiveScreen('pokeBuild')
-    if app.pokemonTeam[0] != None and app.teamBuildToBattleButton.clickIn(mouseX, mouseY):
-        app.currPlayPokeIndex = 0
-        app.currOppPokeIndex = 0
-        app.activePokemon = app.pokemonTeam[app.currPlayPokeIndex].name
-        app.activeOppPokemon = app.enemyTeam[app.currOppPokeIndex].name
-        setActiveScreen('battle')
+            return
 
     
 ############################################################
@@ -163,6 +165,8 @@ def pokeBuild_redrawAll(app):
                                                                app.width // 12, app.width // 12)
 
 def pokeBuild_onMousePress(app, mouseX, mouseY): 
+    if app.pokeBuildToTeamBuildButton.clickIn(mouseX, mouseY): 
+        setActiveScreen('teamBuild')
     app.pokeBuildSpeciesTxtBox.clickIn(mouseX, mouseY)
     if app.pokeBuildSpeciesTxtBox.getButton().clickIn(mouseX, mouseY): 
         pokemonSpecies = app.pokeBuildSpeciesTxtBox.text.lower()
@@ -171,8 +175,6 @@ def pokeBuild_onMousePress(app, mouseX, mouseY):
             newPokemon = Pokemon(None, pokemonSpecies, 'me')
             app.pokemonTeam[app.selectedIndex] = newPokemon
             app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
-    if app.pokeBuildToTeamBuildButton.clickIn(mouseX, mouseY): 
-        setActiveScreen('teamBuild')
 
 def pokeBuild_onKeyPress(app, key): 
     app.pokeBuildSpeciesTxtBox.typeChar(key)
@@ -252,10 +254,33 @@ def drawHealthBar(app, rectLeft, rectTop, hpVal, hpRatio, color, text):
 def battle_onMousePress(app, mouseX, mouseY): 
     if app.win or app.lose or app.stepTimeBro != 0: 
         return
-    checkMovesHappening(app, mouseX, mouseY)
     # Switching
     if app.switchButton.clickIn(mouseX, mouseY): 
-        pass
+        
+        randomMoveIndex = random.randint(0, 3)
+        randomMoveName = app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]
+        oppMoveInfo = Pokemon.moveEffectsDictionary[randomMoveName]
+        allyHpDamage = Pokemon.getHealthDamage(app.enemyTeam[app.currOppPokeIndex], app.pokemonTeam[app.currPlayPokeIndex], oppMoveInfo)
+        app.pokemonTeam[app.currPlayPokeIndex].setHealth(-allyHpDamage)
+        if checkEndGame(app, 'opp') == True: 
+            return
+        app.activeMove = 'switch'
+        app.activeOppMove = randomMoveName
+
+        setActiveScreen('userSwitch')
+    checkMovesHappening(app, mouseX, mouseY)
+    checkFaintToSwitch(app)
+
+def checkFaintToSwitch(app): 
+    if app.activeOppPokemon.pokemonFainted and not(app.lose or app.win): 
+        app.currOppPokeIndex += 1
+        app.activeOppPokemon = app.enemyTeam[app.currOppPokeIndex]
+    if app.activePokemon.pokemonFainted and not(app.lose or app.win): 
+        for pokemonIndex in range(len(app.pokemonTeam)): 
+            if app.pokemonTeam[pokemonIndex] != None and not app.pokemonTeam[pokemonIndex].pokemonFainted:
+                app.currPlayPokeIndex = pokemonIndex
+                app.activePokemon = app.pokemonTeam[app.currPlayPokeIndex]
+        setActiveScreen('userSwitch')
     
 def checkMovesHappening(app, mouseX, mouseY): 
     for button in app.battleMovesButtons: 
@@ -263,7 +288,6 @@ def checkMovesHappening(app, mouseX, mouseY):
             moveInfo = Pokemon.moveEffectsDictionary[button.text.lower()]
             oppHpDamage = Pokemon.getHealthDamage(app.pokemonTeam[app.currPlayPokeIndex], app.enemyTeam[app.currOppPokeIndex], moveInfo)
             randomMoveIndex = random.randint(0, 3)
-            oppMoveInfo = [0, 'normal', 0]
             randomMoveName = app.enemyTeam[app.currOppPokeIndex].movesToUse[randomMoveIndex]
             oppMoveInfo = Pokemon.moveEffectsDictionary[randomMoveName]
             allyHpDamage = Pokemon.getHealthDamage(app.enemyTeam[app.currOppPokeIndex], app.pokemonTeam[app.currPlayPokeIndex], oppMoveInfo)
@@ -286,17 +310,18 @@ def checkMovesHappening(app, mouseX, mouseY):
                     return
             app.activeMove = button.text.lower()
             app.activeOppMove = randomMoveName
-            break
+            return
 
 def drawMoveLabel(app): 
     allySpeed = app.pokemonTeam[app.currPlayPokeIndex].getBattleStats()[5]
     oppSpeed = app.enemyTeam[app.currOppPokeIndex].getBattleStats()[5]
     drawRect(0, 7*app.height//8, 3*app.width//4, app.height//8, fill='white',
               border=rgb(60, 90, 166), borderWidth=5)
-    if (allySpeed > oppSpeed and app.stepTimeBro <= 3) or (allySpeed < oppSpeed and app.stepTimeBro > 3): 
-        drawLabel(f'{app.activePokemon} used {app.activeMove}!', 3*app.width//8, 15*app.height//16, size=app.height//18)
+    if (allySpeed > oppSpeed and app.stepTimeBro <= 3) or (allySpeed < oppSpeed and app.stepTimeBro > 3):
+        text = f'{app.activePokemon.name} used {app.activeMove}!' if app.activeMove != 'switch' else 'You switched'
+        drawLabel(text, 3*app.width//8, 15*app.height//16, size=app.height//18)
     else: 
-        drawLabel(f'{app.activeOppPokemon} used {app.activeOppMove}!', 3*app.width//8, 15*app.height//16, size=app.height//18)
+        drawLabel(f'{app.activeOppPokemon.name} used {app.activeOppMove}!', 3*app.width//8, 15*app.height//16, size=app.height//18)
 
 def checkEndGame(app, side): 
     numOppsFainted = 0
@@ -317,6 +342,48 @@ def checkEndGame(app, side):
 def battle_onKeyPress(app, key): 
     if app.win or app.lose and key == 'r': 
         restart(app)
+
+############################################################
+# userSwitch Screen
+############################################################
+def userSwitch_onScreenActivate(app): 
+    pokemonRectWidth = 5 * app.width // 16
+    pokemonRectHeight = app.height // 8
+    app.userSwitchButtons = [None, None, None, None, None, None]
+    for pokemonSlot in range(len(app.userSwitchButtons)): 
+        rectLeft = app.width // 8 + (pokemonSlot % 2) * (pokemonRectWidth + app.width // 8)
+        rectTop = app.height // 4 + (pokemonSlot // 2) * (pokemonRectHeight + app.height // 8)
+        theme = 'pokeAdded' if app.pokemonTeam[pokemonSlot] != None else 'teamAdd'
+        text = app.pokemonTeam[pokemonSlot].name.capitalize() if app.pokemonTeam[pokemonSlot] != None else 'None'
+        app.userSwitchButtons[pokemonSlot] = Button(rectLeft, rectTop, pokemonRectWidth, pokemonRectHeight, 
+                                                    theme=theme, pokemon=app.pokemonTeam[pokemonSlot], text=text)
+    
+    userSwitchToBattleButtonWidth = 300
+    userSwitchToBattleButtonHeight = 50
+    app.userSwitchToBattleButton = Button(app.width - userSwitchToBattleButtonWidth, 0,
+                                      userSwitchToBattleButtonWidth, userSwitchToBattleButtonHeight, 
+                                      text='Battle!')
+
+def userSwitch_redrawAll(app):
+    drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
+    drawLabel("Choose a 'mon to switch in!",app.width//4,app.height//8, bold=True,
+              size=55, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
+    for buttonIndex in range(len(app.userSwitchButtons)):
+        if buttonIndex == app.currPlayPokeIndex: 
+            app.userSwitchButtons[buttonIndex].drawButton(selected=True)
+        else: 
+            app.userSwitchButtons[buttonIndex].drawButton()
+    app.userSwitchToBattleButton.drawButton()
+
+def userSwitch_onMousePress(app, mouseX, mouseY): 
+    if app.userSwitchToBattleButton.clickIn(mouseX, mouseY): 
+        setActiveScreen('battle')
+    for buttonIndex in range(len(app.userSwitchButtons)): 
+        if (app.userSwitchButtons[buttonIndex].clickIn(mouseX, mouseY) 
+            and app.pokemonTeam[buttonIndex] != None and not app.pokemonTeam[buttonIndex].pokemonFainted): 
+            app.currPlayPokeIndex = buttonIndex
+            app.activePokemon = app.pokemonTeam[app.currPlayPokeIndex]
+            return
 
 
 ############################################################
