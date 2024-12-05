@@ -4,7 +4,7 @@ from PIL import Image
 from pokemon import Pokemon
 
 class Button: 
-    def __init__(self, rectLeft, rectTop, rectWidth, rectHeight, text='+', theme='teamAdd', pokemon='None'): 
+    def __init__(self, rectLeft, rectTop, rectWidth, rectHeight, text='+', theme='teamAdd', pokemon='None', num=None): 
         self.rectLeft = rectLeft
         self.rectTop = rectTop
         self.rectWidth = rectWidth
@@ -12,6 +12,7 @@ class Button:
         self.text = text
         self.theme = theme
         self.pokemon = pokemon
+        self.num=num
 
     def getPokemon(self): 
         return self.pokemon
@@ -58,6 +59,14 @@ class Button:
             drawLabel(moveText, self.rectLeft + self.rectWidth // 2, 
                       self.rectTop + self.rectHeight // 2,
                       fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//2)
+        elif (self.theme == 'moveTxtBox'): 
+            drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
+                 fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=5)
+            drawLabel(str(self.num), self.rectLeft + 30, self.rectTop + 15, 
+                 fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//3)
+            drawLabel(self.text, self.rectLeft + self.rectWidth // 2, 
+                    self.rectTop + self.rectHeight // 2, 
+                    fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//2)
     
     def addPokemon(self, pokemon): 
         self.theme = 'pokeAdded'

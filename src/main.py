@@ -146,15 +146,23 @@ def pokeBuild_onScreenActivate(app):
     ############################################################
     # Moves
     ############################################################
-    pokemonRectWidth = 3 * app.width // 16
-    pokemonRectHeight = app.height // 16
+    app.pokeBuildMoves = [None, None, None, None]
     for pokemonSlot in range(4): 
-        rectLeft = app.width//32 + (pokemonSlot % 2) * (pokemonRectWidth + app.width // 32)
-        rectTop = app.height // 2 + (pokemonSlot // 2) * (pokemonRectHeight + app.height // 8)
-        app.pokeBuildMoves[pokemonSlot] = Button(rectLeft, rectTop, pokemonRectWidth, pokemonRectHeight, text='None')
+        rectLeft = app.width//32 + (pokemonSlot % 2) * (uInputWidth + app.width // 32)
+        rectTop = 13*app.height//32 + (pokemonSlot // 2) * (uInputHeight + app.height//32)
+        app.pokeBuildMoves[pokemonSlot] = Button(rectLeft, rectTop, uInputWidth, uInputHeight, text='None', 
+                                                 theme='moveTxtBox', num=pokemonSlot)
+    nameTxtBoxLeft = app.width//32
+    nameTxtBoxTop = 4*app.height//7
+    app.pokeBuildNameTxtBox = TextInput(nameTxtBoxLeft, nameTxtBoxTop, uInputWidth, uInputHeight)
+    
 
 def pokeBuild_redrawAll(app):
     drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
+    #####################################################
+    for i in range(1, 8): 
+        drawLine(0, i*app.height//7, app.width, i*app.height//7)
+    #####################################################
     drawLabel(f'Pokémon No. {app.selectedIndex + 1}',app.width//6,app.height//16, bold=True,
               size=70, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
     app.pokeBuildToTeamBuildButton.drawButton()
@@ -172,6 +180,18 @@ def pokeBuild_redrawAll(app):
     drawLabel('Choose a Name', app.width//32,app.height//4, bold=True, align='left', 
               size=25, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
     app.pokeBuildNameTxtBox.drawBar()
+
+    ############################################################
+    # Pokemon Moves
+    ############################################################
+    drawLabel('Moves', app.width//32,3*app.height//8, bold=True, align='left', 
+              size=25, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
+    for box in app.pokeBuildMoves: 
+        box.drawButton()
+    drawLabel('Choose a move (input as: moveName,moveNum)', app.width//32,4*app.height//7, bold=True, align='left', 
+              size=20, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
+    app.pokeBuildNameTxtBox.drawBar()
+    
 
     ############################################################
     # Pokemon Species Icon
@@ -213,7 +233,7 @@ def battle_onScreenActivate(app):
     # Given one move right now: 
     randomMoveIndex = random.randint(0, len(app.pokemonTeam[0].getMoves()) - 1)
     app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[randomMoveIndex], 0)
-    
+
     makeMoveButtons(app)
     moveRectWidth, moveRectHeight = app.width // 9, app.height // 18
     rectLeft = app.width - (app.width//8 + moveRectWidth // 2)
