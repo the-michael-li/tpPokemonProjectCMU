@@ -1,3 +1,7 @@
+###################################################
+# Name: Michael Li
+# AndrewID: mli7
+###################################################
 # Pokemon data from Pokeapi.co
 # Battle background image from https://www.pinterest.com/ideas/pokemon-battle-background/934038905355/
 # Pokemon formulas from https://bulbagarden.net/home/
@@ -36,7 +40,7 @@ def restart(app):
     app.win, app.lose = False, False
     setActiveScreen('start')
     app.enemyTeam = []
-    numEnemyPokemon = 2
+    numEnemyPokemon = 6
     for i in range(numEnemyPokemon): 
         randomPokemon = random.choice(list(Pokemon.genOnePokemon))
         newEnemyPokemon = Pokemon(None, randomPokemon, 'opp')
