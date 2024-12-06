@@ -48,7 +48,7 @@ class Button:
             self.pokemon.drawSprite(self.rectLeft + self.rectWidth // 8, self.rectTop, 
                                     self.rectWidth // 4, self.rectWidth // 4)
 
-            drawLabel(self.text, self.rectLeft + self.rectWidth // 2, 
+            drawLabel(self.pokemon.name, self.rectLeft + self.rectWidth // 2, 
                     self.rectTop + self.rectHeight // 2, 
                     fill=rgb(250, 2, 2), bold=True, size=textSize)
         elif (self.theme == 'moves'): 
@@ -64,7 +64,7 @@ class Button:
                  fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=5)
             drawLabel(str(self.num), self.rectLeft + 30, self.rectTop + 15, 
                  fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//3)
-            drawLabel(self.text.replace('-').capitalize(), self.rectLeft + self.rectWidth // 2, 
+            drawLabel(self.text.replace('-', ' ').capitalize(), self.rectLeft + self.rectWidth // 2, 
                     self.rectTop + self.rectHeight // 2, 
                     fill=rgb(250, 2, 2), bold=True, size=self.rectHeight//2)
     
