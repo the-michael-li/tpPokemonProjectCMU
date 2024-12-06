@@ -46,11 +46,13 @@ def restart(app):
         newEnemyPokemon = Pokemon(None, randomPokemon, 'opp')
         app.enemyTeam.append(newEnemyPokemon)
         if len(app.enemyTeam[i].getMoves()) >= 4: 
-            for j in range(1, 4): 
+            for j in range(4): 
                 randomMoveIndex = random.randint(0, len(app.enemyTeam[i].getMoves()) - 1)
                 app.enemyTeam[i].addMove(app.enemyTeam[i].getMoves()[randomMoveIndex], j)
-        randomMoveIndex = random.randint(0, len(app.enemyTeam[i].getMoves()) - 1)
-        app.enemyTeam[i].addMove(app.enemyTeam[i].getMoves()[randomMoveIndex], 0)
+        else: 
+            for j in range(4): 
+                randomMoveIndex = random.randint(0, len(app.enemyTeam[i].getMoves()) - 1)
+                app.enemyTeam[i].addMove(app.enemyTeam[i].getMoves()[randomMoveIndex], j)
         time.sleep(0.0000002)
     app.pokemonTeam = [None, None, None, None, None, None]
     app.teamBuildButtons = []
