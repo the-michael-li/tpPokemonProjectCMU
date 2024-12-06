@@ -129,3 +129,54 @@ class TextInput:
     def getButton(self): 
         return self.button
         
+class ScrollableBox: 
+    def __init__(self, rectLeft, rectTop, rectWidth, rectHeight, list): 
+        self.rectLeft = rectLeft
+        self.rectTop = rectTop
+        self.rectWidth = rectWidth
+        self.rectHeight = rectHeight
+        self.active = False
+        self.list = list
+        self.dy = 0
+        self.numLines = 6 if len(self.list) >= 6 else len(self.list)
+
+    def updateList(self, list): 
+        self.list = list
+        self.dy = 0
+        self.numLines = 6 if len(self.list) >= 6 else len(self.list)
+
+    def clickIn(self, mouseX, mouseY): 
+        # Check if mouse outside X bounds
+        if (mouseX > self.rectLeft + self.rectWidth or mouseX < self.rectLeft): 
+            self.active = False
+        # Check if mouse outside Y bounds
+        elif (mouseY > self.rectTop + self.rectHeight or mouseY < self.rectTop): 
+            self.active = False
+        else: 
+            self.active = True
+
+    def checkScroll(self, key): 
+        if self.active and len(self.list) != 1: 
+            if key == 'up' and self.dy > 0: 
+                self.dy -= 1
+            elif key == 'down' and (len(self.list) - self.numLines) <= self.dy: 
+                self.dy += 1
+    
+    def drawBox(self): 
+        if not self.active: 
+            border='black'
+            color='white'
+        else: 
+            border=rgb(60, 90, 166)
+            color=rgb(255, 203, 5)
+        drawRect(self.rectLeft, self.rectTop, self.rectWidth, self.rectHeight, 
+                fill=color, border=border, borderWidth=3)
+        if self.numLines > 1: 
+            for lineIndex in range(self.dy, self.dy + self.numLines): 
+                print(lineIndex)
+                drawLabel(self.list[lineIndex].capitalize(), self.rectLeft + 5, 
+                          self.rectTop + 20 + (lineIndex - self.dy) * ((self.rectHeight) // 8), 
+                          size=self.rectHeight//12, fill='black', align='left')
+        else: 
+            drawLabel(self.list[0].capitalize(), self.rectLeft + 5, self.rectTop + 20 + (0 - self.dy) * (self.rectHeight // self.numLines), 
+                        size=self.rectHeight//12, fill='black', align='left')

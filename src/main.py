@@ -9,10 +9,9 @@ import requests, pickle, os, pathlib
 import random, copy, time
 from PIL import Image
 from pokemon import Pokemon
-from uiElements import Button, TextInput
+from uiElements import Button, TextInput, ScrollableBox
 '''
 gameEnd Bug (Doesn't exist, just cant switch)
-Move custom
 add search popups
 '''
     
@@ -155,14 +154,12 @@ def pokeBuild_onScreenActivate(app):
     moveTxtBoxLeft = app.width//32
     moveTxtBoxTop = 4*app.height//7
     app.pokeBuildMoveTxtBox = TextInput(moveTxtBoxLeft, moveTxtBoxTop, uInputWidth, uInputHeight)
+    app.pokeBuildMoveList = ScrollableBox(app.width//32, 19*app.height//28, 
+                                          uInputWidth, uInputWidth, newPokemon.getMoves())
     
 
 def pokeBuild_redrawAll(app):
     drawRect(0,0,app.width,app.height,fill=rgb(250, 101, 101))
-    #####################################################
-    # for i in range(1, 15): 
-    #     drawLine(0, i*app.height//14, app.width, i*app.height//14)
-    #####################################################
     drawLabel(f'Pokémon No. {app.selectedIndex + 1}',app.width//6,app.height//16, bold=True,
               size=70, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=3)
     app.pokeBuildToTeamBuildButton.drawButton()
@@ -191,6 +188,9 @@ def pokeBuild_redrawAll(app):
     drawLabel('Choose a move (input as: moveName,moveNum)', app.width//32,15*app.height//28, bold=True, align='left', 
               size=20, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
     app.pokeBuildMoveTxtBox.drawBar()
+    drawLabel('Moves To Choose From', app.width//32, 9*app.height//14, bold=True, align='left', 
+              size=20, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
+    app.pokeBuildMoveList.drawBox()
     
 
     ############################################################
@@ -204,6 +204,8 @@ def pokeBuild_redrawAll(app):
                                                                app.width // 12, app.width // 12)
 
 def pokeBuild_onMousePress(app, mouseX, mouseY): 
+    app.pokeBuildMoveList.clickIn(mouseX, mouseY)
+
     if app.pokeBuildToTeamBuildButton.clickIn(mouseX, mouseY): 
         setActiveScreen('teamBuild')
     
@@ -215,6 +217,7 @@ def pokeBuild_onMousePress(app, mouseX, mouseY):
             newPokemon = Pokemon(None, pokemonSpecies, 'me')
             app.pokemonTeam[app.selectedIndex] = newPokemon
             app.teamBuildButtons[app.selectedIndex].addPokemon(newPokemon)
+            app.pokeBuildMoveList.updateList(newPokemon.getMoves())
     
     app.pokeBuildNameTxtBox.clickIn(mouseX, mouseY)
     if app.pokeBuildNameTxtBox.getButton().clickIn(mouseX, mouseY): 
@@ -239,6 +242,7 @@ def pokeBuild_onKeyPress(app, key):
     app.pokeBuildSpeciesTxtBox.typeChar(key)
     app.pokeBuildNameTxtBox.typeChar(key)
     app.pokeBuildMoveTxtBox.typeChar(key)
+    app.pokeBuildMoveList.checkScroll(key)
     
 ############################################################
 # Battle Screen
