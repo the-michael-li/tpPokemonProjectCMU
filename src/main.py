@@ -133,7 +133,9 @@ def pokeBuild_onScreenActivate(app):
 
     uInputWidth = app.width // 8
     uInputHeight = app.height // 30
-    
+    app.pokeBuildSpeciesList = ScrollableBox(app.width//4, app.height//7,
+                                             uInputWidth, uInputWidth, Pokemon.genOneLIST)
+
     speciesTxtBoxLeft = app.width//32
     speciesTxtBoxTop = app.height//7
     app.pokeBuildSpeciesTxtBox = TextInput(speciesTxtBoxLeft, speciesTxtBoxTop, uInputWidth, uInputHeight)
@@ -170,6 +172,7 @@ def pokeBuild_redrawAll(app):
     drawLabel('Choose Your Pokemon', app.width//32,2 * app.height//16, bold=True, align='left', 
               size=25, fill=rgb(255, 203, 5), border=rgb(60, 90, 166), borderWidth=1)
     app.pokeBuildSpeciesTxtBox.drawBar()
+    app.pokeBuildSpeciesList.drawBox()
 
     ############################################################
     # Pokemon Name UI Bar
@@ -205,6 +208,7 @@ def pokeBuild_redrawAll(app):
 
 def pokeBuild_onMousePress(app, mouseX, mouseY): 
     app.pokeBuildMoveList.clickIn(mouseX, mouseY)
+    app.pokeBuildSpeciesList.clickIn(mouseX, mouseY)
 
     if app.pokeBuildToTeamBuildButton.clickIn(mouseX, mouseY): 
         setActiveScreen('teamBuild')
@@ -221,7 +225,7 @@ def pokeBuild_onMousePress(app, mouseX, mouseY):
     
     app.pokeBuildNameTxtBox.clickIn(mouseX, mouseY)
     if app.pokeBuildNameTxtBox.getButton().clickIn(mouseX, mouseY): 
-        pokemonName = app.pokeBuildNameTxtBox.text.lower()
+        pokemonName = app.pokeBuildNameTxtBox.text
         app.pokeBuildNameTxtBox.text = ''
         app.pokemonTeam[app.selectedIndex].name = pokemonName
 
@@ -243,14 +247,12 @@ def pokeBuild_onKeyPress(app, key):
     app.pokeBuildNameTxtBox.typeChar(key)
     app.pokeBuildMoveTxtBox.typeChar(key)
     app.pokeBuildMoveList.checkScroll(key)
+    app.pokeBuildSpeciesList.checkScroll(key)
     
 ############################################################
 # Battle Screen
 ############################################################
 def battle_onScreenActivate(app): 
-    # Given one move right now: 
-    randomMoveIndex = random.randint(0, len(app.pokemonTeam[0].getMoves()) - 1)
-    app.pokemonTeam[0].addMove(app.pokemonTeam[0].getMoves()[randomMoveIndex], 0)
 
     makeMoveButtons(app)
     moveRectWidth, moveRectHeight = app.width // 9, app.height // 18

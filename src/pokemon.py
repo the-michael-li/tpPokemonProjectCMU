@@ -14,6 +14,7 @@ class Pokemon:
     genOnePokemon = None
     with open('genOneNames', 'rb') as file:
         genOnePokemon = pickle.load(file)
+    genOneLIST = list(genOnePokemon)
 
     # Imports a file of a dictionary of natures mapped to their stat effects (increase index, decrease index)
     natureEffectsDictionary = None
